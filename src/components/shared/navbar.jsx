@@ -1,15 +1,16 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { authClient } from "@/lib/auth-client";
+
 
 export default function Navbar() {
     const [darkMode, setDarkMode] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
 
-    // 🔐 অ্যাথেনটিকেশন স্টেট (আপনার Auth Context-এর সাথে এটি কানেক্ট করবেন)
-    // টেস্ট করার জন্য এগুলো পরিবর্তন করে দেখতে পারেন:
-    const [isLoggedIn, setIsLoggedIn] = useState(true); // true = লগইন করা, false = লগইন ছাড়া
-    const [userRole, setUserRole] = useState("tenant"); // 'tenant', 'owner', অথবা 'admin'
+    // const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [userRole, setUserRole] = useState("tenant");
+
 
     useEffect(() => {
         const theme = localStorage.getItem("theme");
@@ -31,11 +32,13 @@ export default function Navbar() {
         }
     };
 
-    // 🚪 লগআউট হ্যান্ডলার
-    const handleLogout = () => {
-        // এখানে আপনার Auth SignOut লজিক বসবে
-        setIsLoggedIn(false);
-        setIsOpen(false);
+    const { data: session } = authClient.useSession()
+    const user = session?.user;
+    console.log(user, "from navbar");
+
+    const handleLogout = async () => {
+        await authClient.signOut();
+
     };
 
     return (
@@ -59,7 +62,7 @@ export default function Navbar() {
                         <Link href="/properties" className="text-slate-600 dark:text-slate-300 hover:text-indigo-500 dark:hover:text-indigo-400 transition">All Properties</Link>
 
                         {/* 🛠️ ডাইনামিক ড্যাশবোর্ড রুট (ইউজার লগইন থাকলে রোল অনুযায়ী দেখাবে) */}
-                        {isLoggedIn && (
+                        {user && (
                             <Link
                                 href={`/dashboard/${userRole}`}
                                 className="text-indigo-600 dark:text-indigo-400 font-bold hover:opacity-80 transition"
@@ -78,7 +81,7 @@ export default function Navbar() {
                         </button>
 
                         {/* 🔐 অ্যাথেনটিকেশন বাটন গ্রপ */}
-                        {isLoggedIn ? (
+                        {user ? (
                             // লগইন থাকলে: শুধু Logout বাটন দেখাবে
                             <button
                                 onClick={handleLogout}
@@ -123,7 +126,7 @@ export default function Navbar() {
                     <Link href="/properties" onClick={() => setIsOpen(false)} className="text-slate-600 dark:text-slate-300 py-1">All Properties</Link>
 
                     {/* মোবাইল ড্যাশবোর্ড লিঙ্ক */}
-                    {isLoggedIn && (
+                    {user && (
                         <Link
                             href={`/dashboard/${userRole}`}
                             onClick={() => setIsOpen(false)}
@@ -136,7 +139,7 @@ export default function Navbar() {
                     <hr className="border-slate-100 dark:border-slate-800/60" />
 
                     {/* মোবাইল অ্যাথেনটিকেশন বাটন */}
-                    {isLoggedIn ? (
+                    {user ? (
                         <button
                             onClick={handleLogout}
                             className="w-full py-2.5 text-center rounded-xl bg-rose-500/10 text-rose-500 font-bold text-sm"

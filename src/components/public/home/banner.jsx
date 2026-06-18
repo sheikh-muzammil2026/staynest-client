@@ -4,7 +4,7 @@ import Image from "next/image";
 
 export default function Banner() {
 
-    // MOCK DATA: Apni ekhane real data boshate parben
+    // MOCK DATA
     const propertyTypes = ["Penthouse", "Modern Villa", "Loft Studio", "Duplex Apartment"];
     const defaultMinPrice = "1000";
     const defaultMaxPrice = "10000";
@@ -17,15 +17,17 @@ export default function Banner() {
     return (
         <div className="relative min-h-screen flex items-center justify-center bg-[#F8FAFC] dark:bg-[#090D16] overflow-hidden pt-20 transition-colors duration-300">
 
-            {/* 1. BACKGROUND IMAGE (Guideline 1 - Perfected for Light/Dark opacity) */}
-            <div className="absolute inset-0 z-0 opacity-15 dark:opacity-10 mix-blend-overlay pointer-events-none">
+            {/* 1. FIXED BACKGROUND IMAGE CONTAINER (Light & Dark Theme Optimized) */}
+            <div className="absolute inset-0 z-0 pointer-events-none">
                 <Image
                     src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=1920&q=80"
                     alt="Premium Luxury Real Estate Banner"
                     fill
-                    className="object-cover object-center"
+                    className="object-cover object-center opacity-[0.30] dark:opacity-[0.40]" // mix-blend-overlay বাদ দিয়ে ডিরেক্ট অপাসিটি কন্ট্রোল
                     priority
                 />
+                {/* ডার্ক মোডে ইমেজটি যেন টেক্সটের রিড্যাবিলিটি নষ্ট না করে তার জন্য একটি কালো লেয়ার */}
+                <div className="absolute inset-0 bg-transparent dark:bg-black/40"></div>
             </div>
 
             {/* Modern Neon Ambient Glows */}
@@ -55,7 +57,7 @@ export default function Banner() {
                     </span>
                 </motion.h1>
 
-                {/* 3. SHORT & ENGAGING DESCRIPTION (Guideline 2) */}
+                {/* 3. SHORT & ENGAGING DESCRIPTION */}
                 <motion.p
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -65,7 +67,7 @@ export default function Banner() {
                     Discover the ultimate luxury spaces tailored to your lifestyle. Seamlessly browse, filter, and secure your next premium property with our next-gen platform.
                 </motion.p>
 
-                {/* 4. SEARCH BAR WITH LOCATION, PROPERTY TYPE, MIN & MAX PRICE (Guideline 3) */}
+                {/* 4. SEARCH BAR WITH LOCATION, PROPERTY TYPE, MIN & MAX PRICE */}
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -89,7 +91,6 @@ export default function Banner() {
                             <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Property Type</span>
                             <select className="w-full mt-1 text-sm font-semibold text-slate-800 dark:text-slate-200 bg-transparent focus:outline-none cursor-pointer">
                                 {propertyTypes.map((type, index) => (
-                                    // Light moode-e text default black and Dark moode-e custom blue bg dewa hoyeche
                                     <option key={index} className="text-slate-900 dark:text-slate-200 dark:bg-[#131B2E]" value={type.toLowerCase()}>
                                         {type}
                                     </option>

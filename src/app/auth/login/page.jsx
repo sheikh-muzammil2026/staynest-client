@@ -1,11 +1,35 @@
 "use client";
+import { authClient } from "@/lib/auth-client";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
+
+    const router = useRouter()
+
+    const handleOnSubmit = async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(e.currentTarget);
+        const loggedData = Object.fromEntries(formData.entries())
+        const { data, error } = await authClient.signIn.email({
+            email: loggedData.email,
+            password: loggedData.password
+        })
+
+        if (data && !error) {
+            alert("login successfull")
+            router.push('/')
+        }
+        if (error) {
+            alert(error.message)
+        }
+
+    }
+
     const handleGoogleLogin = () => {
-        // এখানে আপনার Firebase/Social Auth লজিক বসবে
-        console.log("Social login: Default role assigned as Tenant");
+
     };
 
     return (
@@ -32,11 +56,12 @@ export default function LoginPage() {
                 </div>
 
                 {/* Form */}
-                <form className="space-y-5">
+                <form onSubmit={handleOnSubmit} className="space-y-5">
                     <div>
                         <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-1.5">Email Address</label>
                         <input
                             type="email"
+                            name="email"
                             placeholder="name@example.com"
                             className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#090D16] text-sm text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-800 focus:outline-none focus:border-indigo-500/50 transition"
                             required
@@ -50,6 +75,7 @@ export default function LoginPage() {
                         </div>
                         <input
                             type="password"
+                            name="password"
                             placeholder="••••••••"
                             className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#090D16] text-sm text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-800 focus:outline-none focus:border-indigo-500/50 transition"
                             required

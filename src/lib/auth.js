@@ -1,3 +1,6 @@
+import dns from "node:dns"
+dns.setServers(['1.1.1.1', '1.0.0.1']);
+
 import { betterAuth } from "better-auth";
 import { MongoClient } from "mongodb";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
@@ -17,11 +20,11 @@ export const auth = betterAuth({
     additionalFields: {
      role :{
        type: "string",
-      default: "user"
+      defaultValue: "user"
      },
      planId: {
-      type: "String",
-      default: "free"
+      type: "string",
+      defaultValue: "free"
      }
     },
   }
