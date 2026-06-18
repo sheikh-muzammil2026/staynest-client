@@ -1,47 +1,100 @@
 "use client";
+import React from "react";
+import { Avatar, Card } from "@heroui/react";
 import { motion } from "framer-motion";
 
+// ৪টি রিয়ালিস্টিক টেন্যান্ট রিভিউ ডাটা
+const reviews = [
+    {
+        name: "Liam Sterling",
+        role: "Tenant since 2024",
+        comment: "Securing an apartment through StayNest was completely hands-free. The instant lease generation saved me days of paperwork.",
+        avatar: "https://i.pravatar.cc/150?u=a042581f2e29026024d"
+    },
+    {
+        name: "Aria Montgomery",
+        role: "Verified Tenant",
+        comment: "Stripe payments are instantaneous. I loved how transparent the platform is regarding owner moderation. Safe experience!",
+        avatar: "https://i.pravatar.cc/150?u=a042581f2e29026704d"
+    },
+    {
+        name: "Marcus Vance",
+        role: "Studio Renter",
+        comment: "What blew me away was the UI cleanliness. No spam listings, no fake pictures. Highly recommend StayNest for busy pros.",
+        avatar: "https://i.pravatar.cc/150?u=a04258114e29026702d"
+    },
+    {
+        name: "Elena Rostova",
+        role: "Loft Tenant",
+        comment: "The support team helped me coordinate my move-in seamlessly. Direct dashboard routing to private owner chats is a game-changer.",
+        avatar: "https://i.pravatar.cc/150?u=a04258114e29026708d"
+    }
+];
+
 export default function Reviews() {
-    const reviews = [
-        { name: "Liam Sterling", role: "Tenant since 2024", comment: "Securing an apartment through StayNest was completely hands-free. The instant lease generation saved me days of paperwork.", rating: "⭐⭐⭐⭐⭐", init: "LS" },
-        { name: "Aria Montgomery", role: "Verified Tenant", comment: "Stripe payments are instantaneous. I loved how transparent the platform is regarding owner moderation. Safe experience!", rating: "⭐⭐⭐⭐⭐", init: "AM" },
-        { name: "Marcus Vance", role: "Studio Renter", comment: "What blew me away was the UI cleanliness. No spam listings, no fake pictures. Highly recommend StayNest for busy pros.", rating: "⭐⭐⭐⭐⭐", init: "MV" },
-        { name: "Elena Rostova", role: "Loft Tenant", comment: "The support team helped me coordinate my move-in seamlessly. Direct dashboard routing to private owner chats is a game-changer.", rating: "⭐⭐⭐⭐⭐", init: "ER" }
-    ];
+    // ইনফিনিট লুপ ট্রিক: অ্যানিমেশন সিমলেস রাখার জন্য ডাটা ডাবল করা হলো
+    const duplicatedReviews = [...reviews, ...reviews];
 
     return (
-        <section className="py-24 bg-[#F8FAFC] dark:bg-[#090D16] transition-colors duration-300">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="py-24 bg-[#F8FAFC] dark:bg-[#090D16] overflow-hidden w-full transition-colors duration-300">
 
-                <div className="text-center max-w-2xl mx-auto mb-16">
-                    <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">Testimonials</span>
-                    <h2 className="text-3xl font-black text-slate-950 dark:text-white tracking-tight mt-1">Trusted By Modern Tenants</h2>
-                </div>
+            {/* সেকশন হেডার */}
+            <div className="max-w-2xl mx-auto px-4 text-center mb-16">
+                <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">
+                    Testimonials
+                </span>
+                <h2 className="text-3xl font-black text-slate-950 dark:text-white tracking-tight mt-1">
+                    Trusted By Modern Tenants
+                </h2>
+            </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {reviews.map((r, i) => (
-                        <motion.div
-                            key={i}
-                            initial={{ opacity: 0, x: i % 2 === 0 ? -20 : 20 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
-                            className="bg-white dark:bg-[#131B2E]/40 p-8 rounded-3xl border border-slate-200/60 dark:border-slate-800/70 shadow-sm flex flex-col justify-between"
+            {/* ইনফিনিট মার্কি কন্টেইনার */}
+            <div className="relative flex w-full overflow-x-hidden [mask-image:linear-gradient(to_right,transparent,white_10%,white_90%,transparent)]">
+
+                <motion.div
+                    className="flex gap-6 whitespace-nowrap min-w-full py-4 px-2"
+                    // ডান থেকে বামে নিরবচ্ছিন্ন লুপ অ্যানিমেশন
+                    animate={{
+                        x: ["0%", "-50%"],
+                    }}
+                    transition={{
+                        ease: "linear",
+                        duration: 25, // গতি পরিবর্তন করতে চাইলে এখানে সেকেন্ড বাড়াতে/কমাতে পারেন
+                        repeat: Infinity,
+                    }}
+                >
+                    {duplicatedReviews.map((review, index) => (
+                        <Card
+                            key={index}
+                            className="bg-white/80 dark:bg-[#131B2E]/40 backdrop-blur-md border border-slate-200/60 dark:border-slate-800/70 w-[300px] sm:w-[400px] flex-shrink-0 rounded-3xl shadow-sm hover:shadow-md transition-all duration-300"
                         >
-                            <p className="text-sm text-slate-600 dark:text-slate-300 italic leading-relaxed">
-                                "{r.comment}"
-                            </p>
-                            <div className="mt-8 flex items-center gap-4">
-                                <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 flex items-center justify-center font-bold text-sm text-indigo-600 dark:text-indigo-400 border border-indigo-100/40 dark:border-indigo-900/20">
-                                    {r.init}
+                            <div className="p-6 whitespace-normal flex flex-col justify-between h-full space-y-6">
+
+                                {/* রিভিউ টেক্সট */}
+                                <p className="text-sm text-slate-600 dark:text-slate-300 italic leading-relaxed">
+                                    "{review.comment}"
+                                </p>
+
+                                {/* ইউজার বায়ো */}
+                                <div className="flex items-center gap-3 text-left">
+                                    <Avatar
+                                        src={review.avatar}
+                                        className="border-2 border-indigo-500/30 w-10 h-10 rounded-xl"
+                                    />
+                                    <div className="flex flex-col">
+                                        <h4 className="text-xs font-bold text-slate-950 dark:text-white">
+                                            {review.name}
+                                        </h4>
+                                        <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium mt-0.5">
+                                            {review.role}
+                                        </p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h4 className="font-bold text-slate-950 dark:text-white text-xs">{r.name}</h4>
-                                    <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium mt-0.5">{r.role} • {r.rating}</p>
-                                </div>
+
                             </div>
-                        </motion.div>
+                        </Card>
                     ))}
-                </div>
+                </motion.div>
 
             </div>
         </section>

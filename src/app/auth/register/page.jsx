@@ -2,6 +2,8 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 
+
+
 export default function RegisterPage() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC] dark:bg-[#090D16] px-4 py-24 transition-colors duration-300 relative overflow-hidden">

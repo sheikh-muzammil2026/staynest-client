@@ -2,6 +2,7 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 
+
 export default function NotFound() {
     return (
         <div className="min-h-screen w-full flex items-center justify-center bg-[#F8FAFC] dark:bg-[#090D16] px-4 transition-colors duration-300 relative overflow-hidden">
