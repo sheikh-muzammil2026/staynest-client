@@ -8,9 +8,6 @@ export default function Navbar() {
     const [darkMode, setDarkMode] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
 
-    // const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [userRole, setUserRole] = useState("tenant");
-
 
     useEffect(() => {
         const theme = localStorage.getItem("theme");
@@ -34,7 +31,8 @@ export default function Navbar() {
 
     const { data: session } = authClient.useSession()
     const user = session?.user;
-    console.log(user, "from navbar");
+    const userRole = user?.role;
+
 
     const handleLogout = async () => {
         await authClient.signOut();

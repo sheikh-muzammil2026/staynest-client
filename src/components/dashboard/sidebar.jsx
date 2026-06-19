@@ -1,9 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { dashboardConfig } from "./dashboardConfig";
 
 export default function Sidebar({ role = "tenant", activeTab, setActiveTab }) {
-    // রোল অনুযায়ী কনফিগ ডাটা তুলে আনা (ভুল রোল দিলে ডিফল্ট 'tenant' হবে)
+
     const currentConfig = dashboardConfig[role] || dashboardConfig.tenant;
 
     return (
@@ -27,11 +28,13 @@ export default function Sidebar({ role = "tenant", activeTab, setActiveTab }) {
                 {currentConfig.routes.map((route, idx) => {
                     // লেবেল থেকে স্লাগ তৈরি করা (যেমন: "📋 My Bookings" -> "bookings")
                     const routeKey = route.label.toLowerCase().split(" ").pop();
+                    const path = route.path;
+                    console.log(path, "routekey from sidebar");
                     const isActive = activeTab === routeKey;
 
                     return (
-                        <button
-                            key={idx}
+                        <Link href={`${path}`} key={idx}><button
+
                             onClick={() => setActiveTab(routeKey)}
                             className={`px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-left transition flex-shrink-0 lg:w-full ${isActive
                                 ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/10"
@@ -39,7 +42,7 @@ export default function Sidebar({ role = "tenant", activeTab, setActiveTab }) {
                                 }`}
                         >
                             {route.label}
-                        </button>
+                        </button></Link>
                     );
                 })}
             </div>
