@@ -4,9 +4,9 @@ import React from 'react';
 
 const page = async ({ params }) => {
     const { id } = await params;
-    console.log(id);
+    // console.log(id);
     const property = await PropertyDetailsById(id);
-    console.log(property);
+    // console.log(property);
     return (
         <PropertyDetails property={property} />
     );

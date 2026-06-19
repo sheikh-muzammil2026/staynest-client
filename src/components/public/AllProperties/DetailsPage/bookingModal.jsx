@@ -1,4 +1,5 @@
 "use client";
+import { submitBookings } from "@/lib/api/booking";
 import React, { useState } from "react";
 
 export default function BookingModal({ property, currentUser, onClose }) {
@@ -20,10 +21,18 @@ export default function BookingModal({ property, currentUser, onClose }) {
             tenantName: currentUser.name,
             tenantEmail: currentUser.email,
             ...formData,
-            status: "Pending" // প্রাথমিক স্ট্যাটাস থাকবে Pending
+            status: "Pending",
+            bookedAt: new Date()
         };
 
+
         try {
+
+            const result = await submitBookings(bookingPayload)
+            if (result) {
+                console.log(result, "booked confirmation");
+            }
+
             // ১. এখানে ব্যাকএন্ডে রিকোয়েস্ট পাঠিয়ে Stripe-এর Checkout Session URL তৈরি করতে হবে।
             // const res = await fetch('/api/bookings/create-checkout-session', { method: 'POST', body: JSON.stringify(bookingPayload) });
             // const session = await res.json();
