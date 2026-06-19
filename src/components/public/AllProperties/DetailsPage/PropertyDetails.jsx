@@ -4,6 +4,7 @@ import Image from "next/image";
 import ReviewSection from "./ReviewSection";
 import { authClient } from "@/lib/auth-client";
 import BookingModal from "./bookingModal";
+import { submitFavorites } from "@/lib/api/favorites";
 
 export default function PropertyDetails({ property }) {
     const [loading, setLoading] = useState(false);
@@ -19,10 +20,22 @@ export default function PropertyDetails({ property }) {
     const currentUser = session?.user;
     // console.log(currentUser, "current user");
 
+
     // Favorites-এ অ্যাড করার ফাংশন
     const handleAddToFavorite = async () => {
+        const favoritesPayload = {
+            propertyId: property?._id,
+            propertyTitle: property?.propertyTitle,
+            rent: property?.rent,
+            location: property?.location,
+            tenantId: currentUser?._id,
+            tenantEmail: currentUser?.email,
+            status: "Pending"
+        };
+
         try {
-            // API Call: fetch('/api/favorites', { method: 'POST', body: JSON.stringify({ propertyId: property._id, userEmail: currentUser.email }) })
+            const result = await submitFavorites(favoritesPayload)
+            console.log(result, "from favorites page");
             setIsFavorite(!isFavorite);
             alert(isFavorite ? "Removed from favorites" : "Added to favorites list!");
         } catch (error) {

@@ -42,19 +42,19 @@ export default function Favorites() {
                             {favorites.length > 0 ? (
                                 favorites.map((item) => (
                                     <motion.tr
-                                        key={item.id}
+                                        key={item._id}
                                         exit={{ opacity: 0, x: -20 }}
                                         transition={{ duration: 0.2 }}
                                         className="hover:bg-slate-50/50 dark:hover:bg-slate-900/10 transition"
                                     >
                                         <td className="p-4">
-                                            <div className="font-bold text-slate-950 dark:text-white">{item.name}</div>
+                                            <div className="font-bold text-slate-950 dark:text-white">{item.propertyTitle}</div>
                                             <div className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">📍 {item.location}</div>
                                         </td>
-                                        <td className="p-4 text-slate-700 dark:text-slate-300 font-bold">{item.price}</td>
+                                        <td className="p-4 text-slate-700 dark:text-slate-300 font-bold">{item.rent}</td>
                                         <td className="p-4 text-right">
                                             <button
-                                                onClick={() => handleRemove(item.id)}
+                                                onClick={() => handleRemove(item._id)}
                                                 className="px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white font-bold text-[10px] uppercase tracking-wider rounded-xl transition-all duration-200"
                                             >
                                                 Remove Favorite
