@@ -28,8 +28,10 @@ export default function LoginPage() {
 
     }
 
-    const handleGoogleLogin = () => {
-
+    const handleGoogleLogin = async () => {
+        const data = await authClient.signIn.social({
+            provider: "google",
+        });
     };
 
     return (

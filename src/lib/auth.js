@@ -10,7 +10,7 @@ const db = client.db("StayNest");
 
 export const auth = betterAuth({
   database: mongodbAdapter(db, {
-    // Optional: if you don't provide a client, database transactions won't be enabled.
+  
     client
   }),
    emailAndPassword: { 
@@ -20,12 +20,18 @@ export const auth = betterAuth({
     additionalFields: {
      role :{
        type: "string",
-      defaultValue: "user"
      },
      planId: {
       type: "string",
       defaultValue: "free"
      }
     },
-  }
+
+  },
+  socialProviders: {
+        google: { 
+            clientId: process.env.GOOGLE_CLIENT_ID, 
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET, 
+        },
+      },
 });

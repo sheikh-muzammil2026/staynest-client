@@ -2,27 +2,29 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Card, Input, Select, SelectItem, Button } from "@heroui/react";
-
-// মক ডাটা (Backend API কানেক্ট করার আগ পর্যন্ত টেস্ট করার জন্য)
-// প্রতিটি প্রপার্টির স্ট্যাটাস "approved" হতে হবে
-const initialProperties = [
-    { id: 1, title: "Modern Manhattan Loft", location: "New York", type: "Apartment", price: 2500, image: "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&w=500&q=80", status: "approved" },
-    { id: 2, title: "Malibu Beachfront Villa", location: "Los Angeles", type: "Villa", price: 4500, image: "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=500&q=80", status: "approved" },
-    { id: 3, title: "Silicon Valley Studio", location: "San Jose", type: "Studio", price: 1800, image: "https://images.unsplash.com/photo-1506012787146-f92b2d7d6d96?auto=format&fit=crop&w=500&q=80", status: "approved" },
-    { id: 4, title: "Miami Penthouse Suite", location: "Miami", type: "Apartment", price: 3800, image: "https://images.unsplash.com/photo-1514565131-fce0801e5785?auto=format&fit=crop&w=500&q=80", status: "approved" },
-    { id: 5, title: "Cozy Redwood Cabin", location: "San Francisco", type: "Cabin", price: 2200, image: "https://images.unsplash.com/photo-1510798831971-661eb04b3739?auto=format&fit=crop&w=500&q=80", status: "approved" },
-];
+import Image from "next/image";
+import Link from "next/link";
+import { getAllProperties } from "@/lib/api/properties";
 
 export default function PropertiesClient() {
-    const [properties, setProperties] = useState(initialProperties);
+    const [properties, setProperties] = useState([]);
     const [search, setSearch] = useState("");
     const [type, setType] = useState("all");
     const [sort, setSort] = useState("");
+    const [initialProperties, setInitialProperties] = useState([]);
 
-    // Backend Filtering Simulation / API Trigger
+
     useEffect(() => {
-        // রিয়াল প্রজেক্টে এখানে আপনি Axios/Fetch দিয়ে ব্যাকএন্ড কল করবেন:
-        // fetch(`/api/properties?search=${search}&type=${type}&sort=${sort}`)
+        const fetchProperties = async () => {
+            const propdertiesData = await getAllProperties()
+            console.log(propdertiesData);
+            setInitialProperties(propdertiesData)
+
+        }
+        fetchProperties()
+    }, [])
+
+    useEffect(() => {
 
         let filtered = initialProperties.filter(
             (p) => p.status === "approved" && p.location.toLowerCase().includes(search.toLowerCase())
@@ -113,13 +115,14 @@ export default function PropertiesClient() {
                                 <Card className="bg-white dark:bg-[#131B2E]/40 border border-slate-200/60 dark:border-slate-800/70 rounded-3xl overflow-hidden group hover:border-indigo-500/40 transition-all duration-300 shadow-sm">
                                     {/* Property Image */}
                                     <div className="h-56 w-full overflow-hidden relative">
-                                        <img
+                                        <Image
+                                            fill
                                             src={property.image}
-                                            alt={property.title}
+                                            alt={property.propertyTitle}
                                             className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                                         />
                                         <span className="absolute top-4 left-4 bg-white/90 dark:bg-slate-950/90 text-slate-900 dark:text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm">
-                                            {property.type}
+                                            {property.propertyType}
                                         </span>
                                     </div>
 
@@ -127,7 +130,7 @@ export default function PropertiesClient() {
                                     <div className="p-6">
                                         <div className="flex justify-between items-start gap-2">
                                             <h3 className="font-bold text-base text-slate-950 dark:text-white group-hover:text-indigo-500 transition duration-300 line-clamp-1">
-                                                {property.title}
+                                                {property.propertyTitle}
                                             </h3>
                                         </div>
 
@@ -137,13 +140,15 @@ export default function PropertiesClient() {
 
                                         <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800/60 flex items-center justify-between">
                                             <div>
-                                                <span className="text-lg font-black text-indigo-600 dark:text-indigo-400">${property.price}</span>
-                                                <span className="text-[10px] text-slate-400 font-medium"> / month</span>
+                                                <span className="text-lg font-black text-indigo-600 dark:text-indigo-400">${property.rent}</span>
+                                                <span className="text-[10px] text-slate-400 font-medium"> ${property.rentType}</span>
                                             </div>
 
-                                            <Button size="sm" className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl shadow-md shadow-indigo-500/10">
-                                                View Details
-                                            </Button>
+                                            <Link href={`/properties/${property._id}`}>
+                                                <Button size="sm" className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl shadow-md shadow-indigo-500/10">
+                                                    View Details
+                                                </Button>
+                                            </Link>
                                         </div>
                                     </div>
                                 </Card>
