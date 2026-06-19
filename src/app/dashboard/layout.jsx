@@ -1,28 +1,32 @@
-"use client";
-import Sidebar from "@/components/dashboard/sidebar";
-import { authClient } from "@/lib/auth-client";
-import { useState } from "react";
 
-export default function DashboardLayout({ children }) {
+import Sidebar from "@/components/dashboard/shared/sidebar";
+import { getUserSession } from "@/lib/core/session";
+import { redirect } from "next/navigation";
 
-    const [activeTab, setActiveTab] = useState("profile");
-    const { data: session } = authClient.useSession()
-    const user = session?.user;
-    const userRole = user?.role;
-    console.log(userRole, "user role from dashboard layout");
+export default async function DashboardLayout({ children }) {
+
+    const user = await getUserSession();
+
+    console.log(user, "user info From dashboard layout");
+
+
+    if (!user) {
+        redirect("/auth/login");
+    }
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#090D16] text-slate-950 dark:text-white transition-colors duration-300 pt-20 flex flex-col lg:flex-row">
+        <div className="h-screen w-full bg-[#F8FAFC] dark:bg-[#090D16] text-slate-950 dark:text-white transition-colors duration-300 flex flex-col lg:flex-row overflow-hidden">
 
-            {/* 🛠️ Dynamic Sidebar Render */}
-            <Sidebar
-                role={userRole}
-                activeTab={activeTab}
-                setActiveTab={setActiveTab}
-            />
 
-            <main className="flex-1 p-6 sm:p-10 max-w-7xl mx-auto w-full">
-                {children}
+            <div className="w-full lg:w-64 lg:h-full shrink-0">
+                <Sidebar role={user?.role} />
+            </div>
+
+            {/* 🖥️ Main Content Area */}
+            <main className="flex-1 p-4 sm:p-8 overflow-y-auto">
+                <div className="max-w-7xl mx-auto w-full">
+                    {children}
+                </div>
             </main>
 
         </div>
