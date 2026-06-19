@@ -3,6 +3,7 @@ dns.setServers(['1.1.1.1', '1.0.0.1']);
 
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Providers from "@/components/providers/providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,7 +31,8 @@ export default function RootLayout({ children }) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="bg-[#F8FAFC] dark:bg-[#090D16] text-slate-950 dark:text-slate-50 antialiased transition-colors duration-300">
-        {children}
+      <Providers>  {children}</Providers>
+      
       </body>
     </html>
   );

@@ -12,36 +12,31 @@ export default function PropertiesClient() {
     const [type, setType] = useState("all");
     const [sort, setSort] = useState("");
     const [initialProperties, setInitialProperties] = useState([]);
+    const [loading, setLoading] = useState(false)
 
 
     useEffect(() => {
-        const fetchProperties = async () => {
-            const propdertiesData = await getAllProperties()
-            console.log(propdertiesData);
-            setInitialProperties(propdertiesData)
 
+        const fetchProperties = async () => {
+            setLoading(true)
+            const data = await getAllProperties()
+            console.log(data);
+            setInitialProperties(data)
+            setLoading(false)
         }
         fetchProperties()
     }, [])
 
-    useEffect(() => {
 
-        let filtered = initialProperties.filter(
-            (p) => p.status === "approved" && p.location.toLowerCase().includes(search.toLowerCase())
+    if (loading) {
+        return (
+            <section className="py-28 bg-white dark:bg-[#090D16] text-center">
+                <p className="text-slate-500">Loading premium spaces...</p>
+
+            </section>
         );
+    }
 
-        if (type !== "all") {
-            filtered = filtered.filter((p) => p.type === type);
-        }
-
-        if (sort === "low-to-high") {
-            filtered.sort((a, b) => a.price - b.price);
-        } else if (sort === "high-to-low") {
-            filtered.sort((a, b) => b.price - a.price);
-        }
-
-        setProperties(filtered);
-    }, [search, type, sort]);
 
     return (
         <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#090D16] text-slate-950 dark:text-white px-4 sm:px-6 lg:px-8 py-24 transition-colors duration-300">
@@ -103,11 +98,11 @@ export default function PropertiesClient() {
                 </div>
 
                 {/* 3-Column Grid Layout */}
-                {properties.length > 0 ? (
+                {initialProperties?.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {properties.map((property, idx) => (
+                        {initialProperties?.map((property, idx) => (
                             <motion.div
-                                key={property.id}
+                                key={property._id}
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: idx * 0.05 }}
@@ -117,8 +112,12 @@ export default function PropertiesClient() {
                                     <div className="h-56 w-full overflow-hidden relative">
                                         <Image
                                             fill
-                                            src={property.image}
-                                            alt={property.propertyTitle}
+                                            src={
+                                                property.image && property.image !== ""
+                                                    ? property.image
+                                                    : "https://placehold.co/600x400.png?text=No+Image" // শেষে .png যোগ করা হয়েছে
+                                            }
+                                            alt={property?.propertyTitle}
                                             className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                                         />
                                         <span className="absolute top-4 left-4 bg-white/90 dark:bg-slate-950/90 text-slate-900 dark:text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm">
