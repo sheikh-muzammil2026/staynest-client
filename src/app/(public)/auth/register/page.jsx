@@ -22,7 +22,7 @@ export default function RegisterPage() {
             email: Registreddata.email,
             password: Registreddata.password,
             name: Registreddata.name,
-            image: Registreddata.image,
+            image: Registreddata.image || " https://api.dicebear.com/7.x/bottts/svg?seed=Felix",
             role: Registreddata.role
         }, {
             onSuccess: (ctx) => {

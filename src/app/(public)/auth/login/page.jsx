@@ -1,32 +1,34 @@
 "use client";
+import React, { useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
+    const router = useRouter();
 
-    const router = useRouter()
+    // 🟢 পাসওয়ার্ড শো/হাইড করার নতুন স্টেট
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleOnSubmit = async (e) => {
         e.preventDefault();
 
         const formData = new FormData(e.currentTarget);
-        const loggedData = Object.fromEntries(formData.entries())
+        const loggedData = Object.fromEntries(formData.entries());
         const { data, error } = await authClient.signIn.email({
             email: loggedData.email,
             password: loggedData.password
-        })
+        });
 
         if (data && !error) {
-            alert("login successfull")
-            router.push('/')
+            alert("login successfull");
+            router.push('/');
         }
         if (error) {
-            alert(error.message)
+            alert(error.message);
         }
-
-    }
+    };
 
     const handleGoogleLogin = async () => {
         const data = await authClient.signIn.social({
@@ -47,7 +49,8 @@ export default function LoginPage() {
             >
                 {/* Header */}
                 <div className="text-center mb-8">
-                    <Link href="/" className="inline-flex items-center gap-2 mb-4">
+                    {/* 🟢 cursor-pointer added */}
+                    <Link href="/" className="inline-flex items-center gap-2 mb-4 cursor-pointer">
                         <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-600 to-sky-400 flex items-center justify-center text-white font-black">
                             D
                         </div>
@@ -73,18 +76,43 @@ export default function LoginPage() {
                     <div>
                         <div className="flex justify-between items-center mb-1.5">
                             <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Password</label>
-                            <a href="#" className="text-[11px] text-indigo-500 hover:underline">Forgot?</a>
+                            {/* 🟢 cursor-pointer added */}
+                            <a href="#" className="text-[11px] text-indigo-500 hover:underline cursor-pointer">Forgot?</a>
                         </div>
-                        <input
-                            type="password"
-                            name="password"
-                            placeholder="••••••••"
-                            className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#090D16] text-sm text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-800 focus:outline-none focus:border-indigo-500/50 transition"
-                            required
-                        />
+
+                        {/* 🟢 পাসওয়ার্ড এবং আইকনের জন্য রিলেটিভ কন্টেইনার আর্কিটেকচার */}
+                        <div className="relative flex items-center">
+                            <input
+                                type={showPassword ? "text" : "password"} // ডাইনামিক টাইপ সুইচ
+                                name="password"
+                                placeholder="••••••••"
+                                className="w-full px-4 pr-12 py-3 rounded-xl bg-slate-50 dark:bg-[#090D16] text-sm text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-800 focus:outline-none focus:border-indigo-500/50 transition"
+                                required
+                            />
+                            {/* 🟢 ডাইনামিক আইকন বাটন উইথ cursor-pointer */}
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-4 text-slate-400 dark:text-slate-500 hover:text-indigo-500 dark:hover:text-indigo-400 cursor-pointer focus:outline-none transition-colors"
+                            >
+                                {showPassword ? (
+                                    // Eye Off Icon SVG
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />
+                                    </svg>
+                                ) : (
+                                    // Eye On Icon SVG
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                    </svg>
+                                )}
+                            </button>
+                        </div>
                     </div>
 
-                    <button type="submit" className="w-full py-3.5 bg-indigo-600 text-white font-bold text-sm rounded-xl hover:bg-indigo-500 transition shadow-lg shadow-indigo-500/20">
+                    {/* 🟢 cursor-pointer added */}
+                    <button type="submit" className="w-full py-3.5 bg-indigo-600 text-white font-bold text-sm rounded-xl hover:bg-indigo-500 transition shadow-lg shadow-indigo-500/20 cursor-pointer">
                         Sign In with Password
                     </button>
                 </form>
@@ -96,11 +124,12 @@ export default function LoginPage() {
                     <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
                 </div>
 
-                {/* Social Login Button (Tenant Default Hint) */}
+                {/* Social Login Button */}
+                {/* 🟢 cursor-pointer added */}
                 <button
                     onClick={handleGoogleLogin}
                     type="button"
-                    className="w-full py-3 px-4 bg-white dark:bg-[#090D16] text-slate-700 dark:text-slate-300 font-semibold text-sm rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 transition flex items-center justify-center gap-2.5"
+                    className="w-full py-3 px-4 bg-white dark:bg-[#090D16] text-slate-700 dark:text-slate-300 font-semibold text-sm rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 transition flex items-center justify-center gap-2.5 cursor-pointer"
                 >
                     {/* Google Icon SVG */}
                     <svg className="h-4 w-4" viewBox="0 0 24 24">
@@ -111,7 +140,8 @@ export default function LoginPage() {
 
                 {/* Redirect */}
                 <p className="text-center text-xs text-slate-500 dark:text-slate-400 mt-6">
-                    Do not have an account? <Link href="/auth/register" className="text-indigo-500 font-semibold hover:underline">Create an account</Link>
+                    {/* 🟢 cursor-pointer added */}
+                    Do not have an account? <Link href="/auth/register" className="text-indigo-500 font-semibold hover:underline cursor-pointer">Create an account</Link>
                 </p>
             </motion.div>
         </div>
