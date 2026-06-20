@@ -7,7 +7,6 @@ export default async function DashboardLayout({ children }) {
 
     const user = await getUserSession();
 
-    console.log(user, "user info From dashboard layout");
 
 
     if (!user) {

@@ -111,7 +111,7 @@ export default function LoginPage() {
 
                 {/* Redirect */}
                 <p className="text-center text-xs text-slate-500 dark:text-slate-400 mt-6">
-                    Don't have an account? <Link href="/auth/register" className="text-indigo-500 font-semibold hover:underline">Create an account</Link>
+                    Do not have an account? <Link href="/auth/register" className="text-indigo-500 font-semibold hover:underline">Create an account</Link>
                 </p>
             </motion.div>
         </div>
