@@ -85,3 +85,36 @@ export const getOwnerProperties = async (email) => {
     }
     return data;
 };
+
+
+export const updatePropertyStatus = async (id, newStatus, feedback = '') => {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URI}/properties/admin?newStatus=${newStatus}&feedback=${encodeURIComponent(feedback)}`, {
+        method: 'PATCH',
+        headers: {
+            'content-type': 'application/json'
+        },
+        body: JSON.stringify({ id }) // শুধু id পাঠানো হচ্ছে
+    });
+    const data = await res.json();
+    return data;
+};
+
+export const deletePropertyById = async (id) => {
+    try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URI}/properties/admin`, {
+            method: 'DELETE',
+            headers: {
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify({ id })
+        });
+        
+        if (!res.ok) throw new Error("Network response was not ok");
+        
+        const data = await res.json();
+        return data;
+    } catch (error) {
+        console.error("API Error (deletePropertyById):", error);
+        throw error;
+    }
+};

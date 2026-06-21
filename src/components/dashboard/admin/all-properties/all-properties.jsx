@@ -1,19 +1,28 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import { Home, CheckCircle, XCircle, Clock, MessageSquare, Trash2, AlertTriangle } from 'lucide-react';
-import { getAllProperties } from '@/lib/api/properties';
+import { deletePropertyById, getAllProperties, updatePropertyStatus } from '@/lib/api/properties';
 import Loading from '@/app/loading';
+import { toast } from 'react-toastify';
 
 export default function AllProperties() {
     const [properties, setProperties] = useState([]);
     const [loading, setLoading] = useState(false);
+
+    // Modals State
+    const [modalOpen, setModalOpen] = useState(false);
+    const [activePropertyId, setActivePropertyId] = useState(null);
+    const [feedbackText, setFeedbackText] = useState('');
+
+    // Delete Modal State (New)
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [propertyToDelete, setPropertyToDelete] = useState(null);
 
     useEffect(() => {
         const fetchProperties = async () => {
             try {
                 setLoading(true);
                 const data = await getAllProperties();
-                console.log(data, "properties");
                 setProperties(data);
             } catch (error) {
                 console.error("Error loading properties:", error);
@@ -24,13 +33,23 @@ export default function AllProperties() {
         fetchProperties();
     }, []);
 
-    const [modalOpen, setModalOpen] = useState(false);
-    const [activePropertyId, setActivePropertyId] = useState(null);
-    const [feedbackText, setFeedbackText] = useState('');
+    // স্ট্যাটাস আপডেটের মূল ফাংশন
+    const updateStatus = async (id, newStatus, feedback = '') => {
+        try {
+            const result = await updatePropertyStatus(id, newStatus, feedback);
 
-    const updateStatus = (id, newStatus, feedback = '') => {
-        // Updated to search by MongoDB p._id 
-        setProperties(properties.map(p => p._id === id ? { ...p, status: newStatus, feedback } : p));
+            if (result.modifiedCount > 0 || result.acknowledged) {
+                setProperties(prevProperties =>
+                    prevProperties.map(p => p._id === id ? { ...p, status: newStatus, feedback } : p)
+                );
+                toast.success(`Property status updated to ${newStatus} successfully!`);
+            } else {
+                toast.error("Failed to update status in database.");
+            }
+        } catch (error) {
+            console.error("Error updating status:", error);
+            toast.error("Something went wrong while updating status.");
+        }
     };
 
     const handleOpenRejectModal = (id) => {
@@ -40,16 +59,37 @@ export default function AllProperties() {
     };
 
     const submitRejection = () => {
-        if (!feedbackText.trim()) return alert("Please provide a reason for rejection.");
+        if (!feedbackText.trim()) return toast.info("Please provide a reason for rejection.");
         updateStatus(activePropertyId, 'Rejected', feedbackText);
         setModalOpen(false);
-        alert("Property rejected. Feedback saved for Owner notification.");
     };
 
-    const handleDelete = (id) => {
-        if (confirm("Delete this property listing permanently?")) {
-            // Updated to filter out by MongoDB p._id
-            setProperties(properties.filter(p => p._id !== id));
+    // ডিলিট বোতামে ক্লিক করলে মোডাল ওপেন হবে
+    const handleOpenDeleteModal = (property) => {
+        setPropertyToDelete(property);
+        setDeleteModalOpen(true);
+    };
+
+    // মোডালে "Confirm Delete" এ ক্লিক করলে এই ফাংশনটি চলবে
+    const handleConfirmDelete = async () => {
+        if (!propertyToDelete) return;
+
+        try {
+            const result = await deletePropertyById(propertyToDelete._id);
+
+            if (result.deletedCount > 0) {
+                setProperties(prevProperties => prevProperties.filter(p => p._id !== propertyToDelete._id));
+                toast.success("Property deleted successfully!");
+            } else {
+                toast.error("Failed to delete property from database.");
+            }
+        } catch (error) {
+            console.error("Error deleting property:", error);
+            toast.error("Something went wrong while deleting the property.");
+        } finally {
+            // অপারেশন শেষ হলে মোডাল বন্ধ এবং স্টেট ক্লিন করা হচ্ছে
+            setDeleteModalOpen(false);
+            setPropertyToDelete(null);
         }
     };
 
@@ -90,7 +130,7 @@ export default function AllProperties() {
                                 </tr>
                             )}
                             {!loading && properties?.map((p) => (
-                                <tr key={p._id || p.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/20 transition-all">
+                                <tr key={p._id} className="hover:bg-slate-50 dark:hover:bg-slate-900/20 transition-all">
                                     <td className="p-5">
                                         <div>
                                             <h4 className="font-bold text-slate-900 dark:text-white">{p.propertyTitle}</h4>
@@ -132,7 +172,8 @@ export default function AllProperties() {
                                                 <XCircle size={18} />
                                             </button>
                                         )}
-                                        <button onClick={() => handleDelete(p._id)} className="p-2 text-slate-400 hover:text-rose-500 rounded-xl transition-colors">
+                                        {/* কাস্টম মোডাল ওপেন করার জন্য এখানে পুরো অবজেক্ট 'p' পাস করা হয়েছে */}
+                                        <button onClick={() => handleOpenDeleteModal(p)} className="p-2 text-slate-400 hover:text-rose-500 rounded-xl transition-colors">
                                             <Trash2 size={18} />
                                         </button>
                                     </td>
@@ -167,6 +208,37 @@ export default function AllProperties() {
                             </button>
                             <button onClick={submitRejection} className="py-2.5 px-5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-sm font-bold transition-all shadow-md shadow-rose-500/20">
                                 Confirm Rejection
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* 🗑️ CUSTOM DELETE CONFIRMATION MODAL (New) */}
+            {deleteModalOpen && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+                    <div className="bg-white dark:bg-slate-800 rounded-[2rem] p-6 max-w-md w-full border border-slate-200 dark:border-slate-700 shadow-2xl space-y-4 text-center">
+                        <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-rose-100 dark:bg-rose-500/10 text-rose-600 mb-2">
+                            <Trash2 size={24} />
+                        </div>
+                        <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                            Delete Property?
+                        </h3>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                            Are you sure you want to permanently delete <span className="font-semibold text-slate-800 dark:text-slate-200">{propertyToDelete?.propertyTitle}</span>? This action cannot be undone.
+                        </p>
+                        <div className="flex gap-2 justify-center pt-2">
+                            <button
+                                onClick={() => { setDeleteModalOpen(false); setPropertyToDelete(null); }}
+                                className="py-2.5 px-5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-200 transition-all"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleConfirmDelete}
+                                className="py-2.5 px-6 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-sm font-bold transition-all shadow-md shadow-rose-500/20"
+                            >
+                                Delete Permanently
                             </button>
                         </div>
                     </div>
