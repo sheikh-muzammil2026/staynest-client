@@ -52,3 +52,24 @@ export const PropertyDetailsById = async(id)=>{
   return data;
 }
 
+
+
+// ✅ API call function (ফাইল: @/lib/api/properties)
+export const addProperty = async (propertyData) => {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URI}/owner/properties`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(propertyData),
+    });
+    
+    // ✅ বাগ ফিক্স: response.json() আগে কল করতে হবে, নয়তো data অবজেক্টটি পাওয়া যাবে না
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || 'Something went wrong!');
+    }
+
+    return data;
+};
