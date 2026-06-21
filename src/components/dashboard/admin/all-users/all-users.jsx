@@ -1,33 +1,84 @@
 "use client";
-import React, { useState } from 'react';
-import { Shield, User, Users, Trash2, Check } from 'lucide-react';
-
-const initialUsers = [
-    { id: 1, name: 'Al-Amin Rahman', email: 'alamin@staynest.com', role: 'owner', joined: '12 Jan 2026' },
-    { id: 2, name: 'Asif Ishtiaque', email: 'asif@gmail.com', role: 'tenant', joined: '05 Feb 2026' },
-    { id: 3, name: 'Tahmid Ahmed', email: 'tahmid@admin.com', role: 'admin', joined: '01 Jan 2026' },
-    { id: 4, name: 'Nusrat Jahan', email: 'nusrat@gmail.com', role: 'tenant', joined: '18 Mar 2026' },
-];
+import React, { useEffect, useState } from 'react';
+import { Shield, User, Users, Trash2, Check, AlertTriangle } from 'lucide-react';
+import { getUsers, updateUserRole, deleteUserById } from '@/lib/api/users'; // API সমূহ ইমপোর্ট করা হয়েছে
+import { toast } from 'react-toastify';
 
 export default function AllUsers() {
-    const [users, setUsers] = useState(initialUsers);
+    const [users, setUsers] = useState([]);
+    const [loading, setLoading] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [selectedRole, setSelectedRole] = useState('');
 
-    const handleRoleChange = (id) => {
-        setUsers(users.map(u => u.id === id ? { ...u, role: selectedRole } : u));
-        setEditingId(null);
-        alert("User role updated successfully in database!");
+    // কাস্টম ডিলিট মোডাল স্টেট
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [userToDelete, setUserToDelete] = useState(null);
+
+    useEffect(() => {
+        const fetchUsers = async () => {
+            try {
+                setLoading(true);
+                const data = await getUsers();
+                setUsers(data);
+            } catch (error) {
+                console.error("Error loading users:", error);
+                toast.error("Failed to load users");
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchUsers();
+    }, []);
+
+    // রোল চেঞ্জ হ্যান্ডেল করার ফাংশন
+    const handleRoleChange = async (id) => {
+        try {
+            const result = await updateUserRole(id, selectedRole);
+            if (result.modifiedCount > 0 || result.acknowledged) {
+                setUsers(prevUsers =>
+                    prevUsers.map(u => u._id === id ? { ...u, role: selectedRole } : u)
+                );
+                toast.success("User role updated successfully!");
+            } else {
+                toast.error("Failed to update user role.");
+            }
+        } catch (error) {
+            console.error("Error changing role:", error);
+            toast.error("Something went wrong!");
+        } finally {
+            setEditingId(null);
+        }
     };
 
-    const handleDeleteUser = (id) => {
-        if (confirm("Are you sure you want to permanently delete this user?")) {
-            setUsers(users.filter(u => u.id !== id));
+    // ডিলিট বোতামে ক্লিক করলে মোডাল ওপেন হবে
+    const handleOpenDeleteModal = (user) => {
+        setUserToDelete(user);
+        setDeleteModalOpen(true);
+    };
+
+    // মোডালে কনফার্ম করলে ডিলিট কার্যকর হবে
+    const handleConfirmDelete = async () => {
+        if (!userToDelete) return;
+
+        try {
+            const result = await deleteUserById(userToDelete._id);
+            if (result.deletedCount > 0) {
+                setUsers(prevUsers => prevUsers.filter(u => u._id !== userToDelete._id));
+                toast.success("User deleted permanently!");
+            } else {
+                toast.error("Failed to delete user.");
+            }
+        } catch (error) {
+            console.error("Error deleting user:", error);
+            toast.error("Something went wrong!");
+        } finally {
+            setDeleteModalOpen(false);
+            setUserToDelete(null);
         }
     };
 
     return (
-        <div className="p-4 md:p-8 animate-in fade-in duration-500">
+        <div className="p-4 md:p-8 animate-in fade-in duration-500 relative">
             <header className="mb-8">
                 <h1 className="text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
                     <Users className="text-blue-500" /> Platform Users
@@ -47,8 +98,18 @@ export default function AllUsers() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-700 text-slate-700 dark:text-slate-300">
-                            {users.map((user) => (
-                                <tr key={user.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/20 transition-all">
+                            {loading && (
+                                <tr>
+                                    <td colSpan="4" className="p-10 text-center text-slate-400">Loading users...</td>
+                                </tr>
+                            )}
+                            {!loading && users.length === 0 && (
+                                <tr>
+                                    <td colSpan="4" className="p-10 text-center text-slate-400 text-sm">No users found.</td>
+                                </tr>
+                            )}
+                            {!loading && users.map((user) => (
+                                <tr key={user._id} className="hover:bg-slate-50 dark:hover:bg-slate-900/20 transition-all">
                                     <td className="p-5">
                                         <div className="flex items-center gap-3">
                                             <div className="w-10 h-10 bg-slate-100 dark:bg-slate-900 rounded-full flex items-center justify-center text-slate-400">
@@ -60,9 +121,9 @@ export default function AllUsers() {
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="p-5 text-sm">{user.joined}</td>
+                                    <td className="p-5 text-sm">{user.joined || "N/A"}</td>
                                     <td className="p-5">
-                                        {editingId === user.id ? (
+                                        {editingId === user._id ? (
                                             <div className="flex items-center gap-2">
                                                 <select
                                                     value={selectedRole}
@@ -73,7 +134,7 @@ export default function AllUsers() {
                                                     <option value="owner">Owner</option>
                                                     <option value="admin">Admin</option>
                                                 </select>
-                                                <button onClick={() => handleRoleChange(user.id)} className="p-2 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors">
+                                                <button onClick={() => handleRoleChange(user._id)} className="p-2 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors">
                                                     <Check size={16} />
                                                 </button>
                                             </div>
@@ -82,19 +143,19 @@ export default function AllUsers() {
                                                     user.role === 'owner' ? 'bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400' :
                                                         'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400'
                                                 }`}>
-                                                {user.role}
+                                                {user.role || 'tenant'}
                                             </span>
                                         )}
                                     </td>
                                     <td className="p-5 flex justify-center gap-2">
                                         <button
-                                            onClick={() => { setEditingId(user.id); setSelectedRole(user.role); }}
+                                            onClick={() => { setEditingId(user._id); setSelectedRole(user.role || 'tenant'); }}
                                             className="py-2 px-4 text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-700/50 rounded-xl transition-colors flex items-center gap-1"
                                         >
                                             <Shield size={14} /> Change Role
                                         </button>
                                         <button
-                                            onClick={() => handleDeleteUser(user.id)}
+                                            onClick={() => handleOpenDeleteModal(user)}
                                             className="p-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-xl transition-all"
                                         >
                                             <Trash2 size={16} />
@@ -106,6 +167,35 @@ export default function AllUsers() {
                     </table>
                 </div>
             </div>
+
+            {/* 🗑️ কাস্টম ডিলিট কনফার্মেশন মোডাল */}
+            {deleteModalOpen && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+                    <div className="bg-white dark:bg-slate-800 rounded-[2rem] p-6 max-w-md w-full border border-slate-200 dark:border-slate-700 shadow-2xl space-y-4 text-center">
+                        <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-rose-100 dark:bg-rose-500/10 text-rose-600 mb-2">
+                            <AlertTriangle size={24} />
+                        </div>
+                        <h3 className="text-xl font-bold text-slate-900 dark:text-white">Delete User?</h3>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                            Are you sure you want to permanently delete <span className="font-semibold text-slate-800 dark:text-slate-200">{`"${userToDelete?.name}"`}</span>? All associated data will be wiped out.
+                        </p>
+                        <div className="flex gap-2 justify-center pt-2">
+                            <button
+                                onClick={() => { setDeleteModalOpen(false); setUserToDelete(null); }}
+                                className="py-2.5 px-5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-200 transition-all"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleConfirmDelete}
+                                className="py-2.5 px-6 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-sm font-bold transition-all shadow-md shadow-rose-500/20"
+                            >
+                                Delete User
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
