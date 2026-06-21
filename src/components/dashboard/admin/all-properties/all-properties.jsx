@@ -1,21 +1,36 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Home, CheckCircle, XCircle, Clock, MessageSquare, Trash2, AlertTriangle } from 'lucide-react';
-
-const initialProperties = [
-    { id: 1, title: 'Grand Executive Suite', owner: 'Al-Amin Rahman', location: 'Dhaka', rent: '$1500', status: 'Pending', feedback: '' },
-    { id: 2, title: 'Oceanic Horizon Villa', owner: 'Zayan Malik', location: 'Cox\'s Bazar', rent: '$4000', status: 'Approved', feedback: '' },
-    { id: 3, title: 'Cosy Studio Apartment', owner: 'Karim Uddin', location: 'Sylhet', rent: '$600', status: 'Rejected', feedback: 'Missing property tax documents.' },
-];
+import { getAllProperties } from '@/lib/api/properties';
+import Loading from '@/app/loading';
 
 export default function AllProperties() {
-    const [properties, setProperties] = useState(initialProperties);
+    const [properties, setProperties] = useState([]);
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        const fetchProperties = async () => {
+            try {
+                setLoading(true);
+                const data = await getAllProperties();
+                console.log(data, "properties");
+                setProperties(data);
+            } catch (error) {
+                console.error("Error loading properties:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchProperties();
+    }, []);
+
     const [modalOpen, setModalOpen] = useState(false);
     const [activePropertyId, setActivePropertyId] = useState(null);
     const [feedbackText, setFeedbackText] = useState('');
 
     const updateStatus = (id, newStatus, feedback = '') => {
-        setProperties(properties.map(p => p.id === id ? { ...p, status: newStatus, feedback } : p));
+        // Updated to search by MongoDB p._id 
+        setProperties(properties.map(p => p._id === id ? { ...p, status: newStatus, feedback } : p));
     };
 
     const handleOpenRejectModal = (id) => {
@@ -33,7 +48,8 @@ export default function AllProperties() {
 
     const handleDelete = (id) => {
         if (confirm("Delete this property listing permanently?")) {
-            setProperties(properties.filter(p => p.id !== id));
+            // Updated to filter out by MongoDB p._id
+            setProperties(properties.filter(p => p._id !== id));
         }
     };
 
@@ -59,16 +75,34 @@ export default function AllProperties() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-700 text-slate-700 dark:text-slate-300">
-                            {properties.map((p) => (
-                                <tr key={p.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/20 transition-all">
+                            {loading && (
+                                <tr>
+                                    <td colSpan="5" className="p-10 text-center">
+                                        <Loading />
+                                    </td>
+                                </tr>
+                            )}
+                            {!loading && properties.length === 0 && (
+                                <tr>
+                                    <td colSpan="5" className="p-10 text-center text-slate-400 text-sm">
+                                        No properties available for review.
+                                    </td>
+                                </tr>
+                            )}
+                            {!loading && properties?.map((p) => (
+                                <tr key={p._id || p.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/20 transition-all">
                                     <td className="p-5">
                                         <div>
-                                            <h4 className="font-bold text-slate-900 dark:text-white">{p.title}</h4>
+                                            <h4 className="font-bold text-slate-900 dark:text-white">{p.propertyTitle}</h4>
                                             <p className="text-xs text-slate-400">{p.location}</p>
                                         </div>
                                     </td>
-                                    <td className="p-5 text-sm font-semibold">{p.owner}</td>
-                                    <td className="p-5 font-black text-blue-500">{p.rent}</td>
+                                    <td className="p-5 text-sm font-semibold">
+                                        {p?.ownerInformation?.name || "Unknown Owner"}
+                                    </td>
+                                    <td className="p-5 font-black text-blue-500">
+                                        BDT {p.rent} <span className="text-xs font-normal text-slate-400">/{p.rentType || 'Monthly'}</span>
+                                    </td>
                                     <td className="p-5">
                                         <div className="space-y-1">
                                             <span className={`flex items-center gap-1.5 w-fit px-3 py-1 rounded-full text-xs font-bold ${p.status === 'Approved' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400' :
@@ -78,27 +112,27 @@ export default function AllProperties() {
                                                 {p.status === 'Approved' && <CheckCircle size={14} />}
                                                 {p.status === 'Pending' && <Clock size={14} />}
                                                 {p.status === 'Rejected' && <XCircle size={14} />}
-                                                {p.status}
+                                                {p.status || 'Pending'}
                                             </span>
-                                            {p.feedback && (
+                                            {p?.feedback && (
                                                 <p className="text-xs text-rose-500 dark:text-rose-400 flex items-center gap-1 max-w-xs italic">
                                                     <MessageSquare size={12} /> {p.feedback}
                                                 </p>
                                             )}
                                         </div>
                                     </td>
-                                    <td className="p-5 flex justify-center gap-2">
+                                    <td className="p-5 flex justify-center gap-2 items-center h-full">
                                         {p.status !== 'Approved' && (
-                                            <button onClick={() => updateStatus(p.id, 'Approved')} className="p-2 text-emerald-500 bg-emerald-500/10 rounded-xl hover:bg-emerald-500 hover:text-white transition-all">
+                                            <button onClick={() => updateStatus(p._id, 'Approved')} className="p-2 text-emerald-500 bg-emerald-500/10 rounded-xl hover:bg-emerald-500 hover:text-white transition-all">
                                                 <CheckCircle size={18} />
                                             </button>
                                         )}
                                         {p.status !== 'Rejected' && (
-                                            <button onClick={() => handleOpenRejectModal(p.id)} className="p-2 text-rose-500 bg-rose-500/10 rounded-xl hover:bg-rose-500 hover:text-white transition-all">
+                                            <button onClick={() => handleOpenRejectModal(p._id)} className="p-2 text-rose-500 bg-rose-500/10 rounded-xl hover:bg-rose-500 hover:text-white transition-all">
                                                 <XCircle size={18} />
                                             </button>
                                         )}
-                                        <button onClick={() => handleDelete(p.id)} className="p-2 text-slate-400 hover:text-rose-500 rounded-xl transition-colors">
+                                        <button onClick={() => handleDelete(p._id)} className="p-2 text-slate-400 hover:text-rose-500 rounded-xl transition-colors">
                                             <Trash2 size={18} />
                                         </button>
                                     </td>

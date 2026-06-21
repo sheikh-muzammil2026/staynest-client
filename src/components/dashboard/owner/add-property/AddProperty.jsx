@@ -1,14 +1,28 @@
 "use client";
 import React, { useState } from 'react';
 import { Upload, PlusCircle, Loader2 } from 'lucide-react';
-import { addProperty } from '@/lib/api/properties';
+import { addProperty } from '@/lib/api/properties'; // 👈 আগের ফাইলের API ফাংশন ইম্পোর্ট করা হলো
 import { toast } from 'react-toastify';
+import { authClient } from '@/lib/auth-client';
 
 export default function AddProperty() {
+
+    const { data: session } = authClient.useSession();
+    const user = session?.user;
+    const userEmail = user?.email;
+
     const [formData, setFormData] = useState({
-        title: '', description: '', location: '', type: 'Apartment',
-        rent: '', rentType: 'Monthly', bedrooms: '', bathrooms: '',
-        size: '', amenities: '', extraFeatures: ''
+        propertyTitle: '',
+        description: '',
+        location: '',
+        propertyType: 'Apartment',
+        rent: '',
+        rentType: 'Monthly',
+        bedrooms: '',
+        bathrooms: '',
+        propertySize: '',
+        amenities: '',
+        extraFeatures: ''
     });
 
     const [loading, setLoading] = useState(false);
@@ -19,28 +33,63 @@ export default function AddProperty() {
         setLoading(true);
         setMessage({ type: '', text: '' });
 
+
+        if (!userEmail) {
+            toast.error("Please log in first to add a property.");
+            setLoading(false);
+            return;
+        }
+
+        const amenitiesArray = formData.amenities
+            ? formData.amenities.split(',').map(item => item.trim())
+            : [];
+
         const propertyData = {
-            ...formData,
+            propertyTitle: formData.propertyTitle,
+            description: formData.description,
+            location: formData.location,
+            propertyType: formData.propertyType,
             rent: Number(formData.rent),
+            rentType: formData.rentType,
             bedrooms: Number(formData.bedrooms),
             bathrooms: Number(formData.bathrooms),
-            size: Number(formData.size),
-            status: 'Pending'
+            propertySize: `${formData.propertySize} sqft`,
+            amenities: amenitiesArray,
+            images: [
+                "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85",
+                "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af"
+            ],
+            extraFeatures: formData.extraFeatures,
+            status: 'Pending',
+            ownerInformation: {
+                name: user?.name || "Unknown Owner",
+                email: user?.email,
+                phone: user?.phone || "+8801XXXXXXXXX"
+            }
         };
 
         try {
             const submitedData = await addProperty(propertyData);
 
-            // ✅ বাগ ফিক্স: MongoDB ইনসার্ট করার পর insertedId রিটার্ন করে, deletedCount নয়
             if (submitedData && submitedData.insertedId) {
                 toast.success("Added your property successfully");
                 setMessage({ type: 'success', text: 'Property listed successfully!' });
 
+                // ফর্ম স্টেট রিসেট
                 setFormData({
-                    title: '', description: '', location: '', type: 'Apartment',
-                    rent: '', rentType: 'Monthly', bedrooms: '', bathrooms: '',
-                    size: '', amenities: '', extraFeatures: ''
+                    propertyTitle: '',
+                    description: '',
+                    location: '',
+                    propertyType: 'Apartment',
+                    rent: '',
+                    rentType: 'Monthly',
+                    bedrooms: '',
+                    bathrooms: '',
+                    propertySize: '',
+                    amenities: '',
+                    extraFeatures: ''
                 });
+
                 e.target.reset();
             } else {
                 throw new Error("Failed to insert property in database.");
@@ -62,11 +111,10 @@ export default function AddProperty() {
                     <p className="text-slate-500 dark:text-slate-400">Provide accurate details to list your property on StayNest.</p>
                 </div>
 
-                {/* 🟢 সাকসেস বা এরর নোটিফিকেশন ব্যানার */}
                 {message.text && (
                     <div className={`p-4 mb-6 rounded-2xl text-sm font-semibold transition-all animate-in fade-in duration-300 ${message.type === 'success'
-                            ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20'
-                            : 'bg-rose-500/10 text-rose-600 border border-rose-500/20'
+                        ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20'
+                        : 'bg-rose-500/10 text-rose-600 border border-rose-500/20'
                         }`}>
                         {message.text}
                     </div>
@@ -78,18 +126,18 @@ export default function AddProperty() {
                             <label className="text-sm font-semibold ml-1">Property Title</label>
                             <input
                                 type="text"
-                                value={formData.title}
-                                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                value={formData.propertyTitle}
+                                onChange={(e) => setFormData({ ...formData, propertyTitle: e.target.value })}
                                 className="w-full p-4 rounded-2xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 outline-none focus:ring-2 ring-blue-500 transition-all text-slate-900 dark:text-white"
-                                placeholder="E.g. Blue Horizon Luxury Villa"
+                                placeholder="E.g. Sublet Executive Master Room with Balcony"
                                 required
                             />
                         </div>
                         <div className="space-y-2">
                             <label className="text-sm font-semibold ml-1">Property Type</label>
                             <select
-                                value={formData.type}
-                                onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                                value={formData.propertyType}
+                                onChange={(e) => setFormData({ ...formData, propertyType: e.target.value })}
                                 className="w-full p-4 rounded-2xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 outline-none text-slate-900 dark:text-white focus:ring-2 ring-blue-500"
                             >
                                 <option value="Apartment">Apartment</option>
@@ -119,7 +167,7 @@ export default function AddProperty() {
                                 value={formData.rent}
                                 onChange={(e) => setFormData({ ...formData, rent: e.target.value })}
                                 className="w-full p-4 rounded-2xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 outline-none text-slate-900 dark:text-white focus:ring-2 ring-blue-500"
-                                placeholder="$ 0.00"
+                                placeholder="৳ 0.00"
                                 required
                             />
                         </div>
@@ -139,10 +187,10 @@ export default function AddProperty() {
                             <label className="text-sm font-semibold ml-1">Property Size (sqft)</label>
                             <input
                                 type="number"
-                                value={formData.size}
-                                onChange={(e) => setFormData({ ...formData, size: e.target.value })}
+                                value={formData.propertySize}
+                                onChange={(e) => setFormData({ ...formData, propertySize: e.target.value })}
                                 className="w-full p-4 rounded-2xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 outline-none text-slate-900 dark:text-white focus:ring-2 ring-blue-500"
-                                placeholder="1200"
+                                placeholder="400"
                             />
                         </div>
                     </div>
@@ -155,7 +203,7 @@ export default function AddProperty() {
                                 value={formData.location}
                                 onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                                 className="w-full p-4 rounded-2xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 outline-none text-slate-900 dark:text-white focus:ring-2 ring-blue-500"
-                                placeholder="City, State"
+                                placeholder="Paltan, Dhaka"
                                 required
                             />
                         </div>
@@ -166,7 +214,7 @@ export default function AddProperty() {
                                 value={formData.bedrooms}
                                 onChange={(e) => setFormData({ ...formData, bedrooms: e.target.value })}
                                 className="w-full p-4 rounded-2xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 outline-none text-slate-900 dark:text-white focus:ring-2 ring-blue-500"
-                                placeholder="0"
+                                placeholder="1"
                             />
                         </div>
                         <div className="space-y-2">
@@ -176,7 +224,7 @@ export default function AddProperty() {
                                 value={formData.bathrooms}
                                 onChange={(e) => setFormData({ ...formData, bathrooms: e.target.value })}
                                 className="w-full p-4 rounded-2xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 outline-none text-slate-900 dark:text-white focus:ring-2 ring-blue-500"
-                                placeholder="0"
+                                placeholder="1"
                             />
                         </div>
                     </div>
@@ -189,7 +237,7 @@ export default function AddProperty() {
                                 value={formData.amenities}
                                 onChange={(e) => setFormData({ ...formData, amenities: e.target.value })}
                                 className="w-full p-4 rounded-2xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 outline-none text-slate-900 dark:text-white focus:ring-2 ring-blue-500"
-                                placeholder="WiFi, AC, Parking (Separate with commas)"
+                                placeholder="Lift Support, WiFi Service, Maid Service Shareable"
                             />
                         </div>
                         <div className="space-y-2">
@@ -199,9 +247,23 @@ export default function AddProperty() {
                                 value={formData.extraFeatures}
                                 onChange={(e) => setFormData({ ...formData, extraFeatures: e.target.value })}
                                 className="w-full p-4 rounded-2xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 outline-none text-slate-900 dark:text-white focus:ring-2 ring-blue-500"
-                                placeholder="E.g. Ocean View, Elevator Backup"
+                                placeholder="Walking distance to Bangladesh Secretariat"
                             />
                         </div>
+                    </div>
+
+                    {/* 👤 ওনার ইনফরমেশন সেকশন */}
+                    <div className="p-4 bg-slate-100 dark:bg-slate-900/60 rounded-2xl border border-slate-200/50 dark:border-slate-700/50 space-y-2">
+                        <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300">Owner Profile Information</h4>
+                        {userEmail ? (
+                            <div className="grid md:grid-cols-3 gap-4 text-xs text-slate-600 dark:text-slate-400">
+                                <p><strong>Name:</strong> {user?.name || "N/A"}</p>
+                                <p><strong>Email:</strong> {userEmail}</p>
+                                <p><strong>Phone:</strong> {user?.phone || "Not Provided"}</p>
+                            </div>
+                        ) : (
+                            <p className="text-xs text-rose-500 font-medium">You are not logged in. Please log in to publish property.</p>
+                        )}
                     </div>
 
                     <div className="space-y-2">
@@ -214,8 +276,8 @@ export default function AddProperty() {
 
                     <button
                         type="submit"
-                        disabled={loading}
-                        className="w-full py-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-2xl font-bold shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2 transition-all cursor-pointer disabled:cursor-not-allowed"
+                        disabled={loading || !userEmail}
+                        className="w-full py-4 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white rounded-2xl font-bold shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2 transition-all cursor-pointer disabled:cursor-not-allowed"
                     >
                         {loading ? (
                             <>
@@ -232,4 +294,3 @@ export default function AddProperty() {
         </div>
     );
 }
-
