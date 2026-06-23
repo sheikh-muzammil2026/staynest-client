@@ -1,4 +1,5 @@
-import PropertiesClient from "@/components/public/AllProperties/PropertiesClient";
+import AllProperties from "@/components/public/AllProperties/PropertiesClient";
+
 
 
 export const metadata = {
@@ -7,5 +8,5 @@ export const metadata = {
 };
 
 export default function PropertiesPage() {
-    return <PropertiesClient />;
+    return <AllProperties />;
 }

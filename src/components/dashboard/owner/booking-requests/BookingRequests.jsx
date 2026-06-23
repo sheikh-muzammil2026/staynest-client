@@ -1,14 +1,23 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { User, MapPin, Check, X } from 'lucide-react';
+import { getBookings } from '@/lib/api/booking';
+import { authClient } from '@/lib/auth-client';
 
-const initialBookings = [
-    { id: 101, tenant: 'Rahat Khan', email: 'rahat@example.com', property: 'Skyline Penthouse', amount: '$1200', date: '20 Oct, 2026', status: 'Pending' },
-    { id: 102, tenant: 'Sumaiya Akter', email: 'sumaiya@example.com', property: 'Green View Flat', amount: '$850', date: '22 Oct, 2026', status: 'Pending' },
-];
+
 
 export default function BookingRequests() {
-    const [bookings, setBookings] = useState(initialBookings);
+    const [bookings, setBookings] = useState([]);
+    const { data: session } = authClient.useSession();
+    const user = session?.user;
+
+    useEffect(() => {
+        const fetchBookings = async () => {
+            const myBookings = await getBookings(user?.email)
+            setBookings(myBookings)
+        }
+        fetchBookings()
+    }, [])
 
     const handleAction = (id, actionType) => {
         setBookings(prev =>
@@ -21,8 +30,8 @@ export default function BookingRequests() {
             <h2 className="text-2xl font-bold mb-6 text-slate-900 dark:text-white">Booking Requests</h2>
 
             <div className="grid gap-4">
-                {bookings.map((booking) => (
-                    <div key={booking.id} className="p-6 bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 flex flex-col md:flex-row items-center justify-between gap-4 transition-all hover:shadow-lg">
+                {bookings?.map((booking) => (
+                    <div key={booking._id} className="p-6 bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 flex flex-col md:flex-row items-center justify-between gap-4 transition-all hover:shadow-lg">
 
                         {/* Tenant and Property Info */}
                         <div className="flex items-center gap-4 w-full md:w-auto">
@@ -30,18 +39,18 @@ export default function BookingRequests() {
                                 <User />
                             </div>
                             <div>
-                                <h4 className="font-bold text-lg text-slate-900 dark:text-white">{booking.tenant}</h4>
-                                <p className="text-xs text-slate-400 mb-1">{booking.email}</p>
+                                <h4 className="font-bold text-lg text-slate-900 dark:text-white">{booking.tenantName}</h4>
+                                <p className="text-xs text-slate-400 mb-1">{booking.tenantEmail}</p>
                                 <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 italic">
-                                    <MapPin size={14} /> {booking.property}
+                                    <MapPin size={14} /> {booking.propertyTitle}
                                 </div>
                             </div>
                         </div>
 
                         {/* Price and Date */}
                         <div className="flex flex-col md:items-end w-full md:w-auto">
-                            <span className="text-xl font-black text-emerald-600 dark:text-emerald-400">{booking.amount}</span>
-                            <span className="text-xs text-slate-400 uppercase tracking-widest">{booking.date}</span>
+                            <span className="text-xl font-black text-emerald-600 dark:text-emerald-400">{booking.rent}</span>
+                            <span className="text-xs text-slate-400 uppercase tracking-widest">{booking.moveInDate}</span>
                         </div>
 
                         {/* Action Buttons / Status Badge */}
@@ -49,13 +58,13 @@ export default function BookingRequests() {
                             {booking.status === 'Pending' ? (
                                 <>
                                     <button
-                                        onClick={() => handleAction(booking.id, 'Approved')}
+                                        onClick={() => handleAction(booking._id, 'Approved')}
                                         className="flex-1 md:flex-none py-3 px-6 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl flex items-center justify-center gap-2 font-bold transition-all shadow-md shadow-emerald-500/20"
                                     >
                                         <Check size={18} /> Approve
                                     </button>
                                     <button
-                                        onClick={() => handleAction(booking.id, 'Rejected')}
+                                        onClick={() => handleAction(booking._id, 'Rejected')}
                                         className="flex-1 md:flex-none py-3 px-6 bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-900/50 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 rounded-2xl flex items-center justify-center gap-2 font-bold transition-all"
                                     >
                                         <X size={18} /> Reject

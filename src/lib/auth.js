@@ -1,3 +1,4 @@
+
 import dns from "node:dns"
 dns.setServers(['1.1.1.1', '1.0.0.1']);
 
@@ -10,28 +11,28 @@ const db = client.db("StayNest");
 
 export const auth = betterAuth({
   database: mongodbAdapter(db, {
-  
+
     client
   }),
-   emailAndPassword: { 
-    enabled: true, 
+  emailAndPassword: {
+    enabled: true,
   },
   user: {
     additionalFields: {
-     role :{
-       type: "string",
-     },
-     planId: {
-      type: "string",
-      defaultValue: "free"
-     }
+      role: {
+        type: "string",
+      },
+      planId: {
+        type: "string",
+        defaultValue: "free"
+      }
     },
 
   },
   socialProviders: {
-        google: { 
-            clientId: process.env.GOOGLE_CLIENT_ID, 
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET, 
-        },
-      },
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    },
+  },
 });

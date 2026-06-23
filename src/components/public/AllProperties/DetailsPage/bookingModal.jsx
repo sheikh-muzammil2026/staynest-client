@@ -10,6 +10,7 @@ export default function BookingModal({ property, currentUser, onClose }) {
     });
     const [isProcessing, setIsProcessing] = useState(false);
 
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsProcessing(true);
@@ -17,6 +18,7 @@ export default function BookingModal({ property, currentUser, onClose }) {
         const bookingPayload = {
             propertyId: property._id,
             propertyTitle: property.propertyTitle,
+            ownerEmail: property.ownerInformation.email,
             rent: property.rent,
             tenantName: currentUser.name,
             tenantEmail: currentUser.email,
@@ -25,28 +27,36 @@ export default function BookingModal({ property, currentUser, onClose }) {
             bookedAt: new Date()
         };
 
-
         try {
 
-            const result = await submitBookings(bookingPayload)
-            if (result) {
-                console.log(result, "booked confirmation");
+
+            const result = await submitBookings(bookingPayload);
+
+            const stripeRes = await fetch('/api/checkout_sessions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    bookingId: result?.insertedId,
+                    rent: property.rent,
+                    propertyTitle: property.propertyTitle
+                })
+            });
+
+            const stripeData = await stripeRes.json();
+
+            if (stripeRes.ok && stripeData.url) {
+
+                window.location.assign(stripeData.url);
+
+            } else {
+                throw new Error(stripeData.error || "Failed to get checkout URL");
             }
 
-            // ১. এখানে ব্যাকএন্ডে রিকোয়েস্ট পাঠিয়ে Stripe-এর Checkout Session URL তৈরি করতে হবে।
-            // const res = await fetch('/api/bookings/create-checkout-session', { method: 'POST', body: JSON.stringify(bookingPayload) });
-            // const session = await res.json();
-
-            // ২. সাকসেসফুল সেশন ইউআরএল পাওয়ার পর ইউজারকে স্ট্রাইপ পেমেন্ট পেজে রিডাইরেক্ট করতে হবে:
-            // window.location.href = session.url;
-
-            console.log("Redirecting to Stripe with payload:", bookingPayload);
-            alert("Redirecting to Stripe Payment Gateway...");
-
-            // পেমেন্ট সফল হওয়ার পর ব্যাকএন্ড বুকিং রেকর্ড ও ট্রানজেকশন আইডি ডাটাবেজে সেভ করবে 
-            // এবং ইউজারকে সাকসেস পেজে রিডাইরেক্ট করবে।
         } catch (error) {
             console.error("Booking failed:", error);
+            alert(error.message || "Something went wrong!");
         } finally {
             setIsProcessing(false);
         }

@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { getAllProperties } from "@/lib/api/properties";
 
-export default function PropertiesClient() {
+export default function AllProperties() {
     const [properties, setProperties] = useState([]);
     const [search, setSearch] = useState("");
     const [type, setType] = useState("all");
@@ -20,7 +20,7 @@ export default function PropertiesClient() {
         const fetchProperties = async () => {
             setLoading(true)
             const data = await getAllProperties()
-            console.log(data);
+
             setInitialProperties(data)
             setLoading(false)
         }

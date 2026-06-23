@@ -14,7 +14,7 @@ export default function PropertyDetails({ property }) {
     const [favoriteId, setFavoriteId] = useState(null);
     const [isBookingOpen, setIsBookingOpen] = useState(false);
 
-    // 🟢 নতুন স্টেট: ইনিশিয়াল চেকিং শেষ হওয়া পর্যন্ত বাটন হোল্ড করার জন্য
+
     const [isCheckingFavorite, setIsCheckingFavorite] = useState(true);
 
     const [mainImage, setMainImage] = useState(
@@ -24,7 +24,7 @@ export default function PropertyDetails({ property }) {
     const { data: session } = authClient.useSession();
     const currentUser = session?.user;
 
-    // 🟢 ফেভারিট স্টেট চেক করার ফিক্সড লজিক
+
     useEffect(() => {
         const checkFavId = async () => {
             if (!currentUser?.email || !property?._id) {
@@ -46,7 +46,7 @@ export default function PropertyDetails({ property }) {
             } catch (error) {
                 console.error("Error checking favorite:", error);
             } finally {
-                setIsCheckingFavorite(false); // চেকিং শেষ
+                setIsCheckingFavorite(false);
             }
         };
 
@@ -75,7 +75,7 @@ export default function PropertyDetails({ property }) {
                 const result = await submitFavorites(favoritesPayload);
                 console.log(result, "result after added favorites");
 
-                // 🟢 ব্যাকএন্ড অবজেক্ট স্ট্রাকচার হ্যান্ডেলিং
+
                 const insertedId = result?.insertedId || result?._id || result?.data?.insertedId || result?.data?._id;
 
                 if (insertedId) {
@@ -83,7 +83,7 @@ export default function PropertyDetails({ property }) {
                     setIsFavorite(true);
                     toast.success("Added to favorites list!");
                 } else {
-                    // যদি এপিআই সাকসেসফুল হয় কিন্তু আইডি খুঁজে না পায়, ডাটাবেস থেকে আবার আইডি নেওয়ার চেষ্টা
+
                     const checkData = await checkFavorite(currentUser.email, property._id);
                     if (checkData && checkData.isFavorite) {
                         setFavoriteId(checkData.favoriteId);
@@ -252,10 +252,10 @@ export default function PropertyDetails({ property }) {
                                     onClick={handleAddToFavorite}
                                     disabled={favoriteLoading || isCheckingFavorite}
                                     className={`w-full py-3.5 rounded-xl font-bold text-xs border transition-all flex items-center justify-center gap-2 ${isCheckingFavorite
-                                            ? "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-600 border-slate-200 dark:border-slate-700 cursor-wait"
-                                            : isFavorite
-                                                ? "bg-rose-50 dark:bg-rose-950/20 text-rose-500 border-rose-200 dark:border-rose-900/50 hover:bg-rose-100/50"
-                                                : "bg-transparent text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900"
+                                        ? "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-600 border-slate-200 dark:border-slate-700 cursor-wait"
+                                        : isFavorite
+                                            ? "bg-rose-50 dark:bg-rose-950/20 text-rose-500 border-rose-200 dark:border-rose-900/50 hover:bg-rose-100/50"
+                                            : "bg-transparent text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900"
                                         } ${favoriteLoading ? "opacity-60 cursor-not-allowed" : ""}`}
                                 >
                                     {isCheckingFavorite ? (
