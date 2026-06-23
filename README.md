@@ -6,6 +6,13 @@ First, run the development server:
 
 ```bash
 BETTER_AUTH_SECRET=0ZIETv3yxyEFMuV9mnvqUCMKxCvKYe37
+BETTER_AUTH_URL=http://localhost:3000
+NEXT_PUBLIC_SERVER_URI=http://localhost:5000 #https://staynest-server-phi.vercel.app/
+GOOGLE_CLIENT_ID=652211954472-4cpk7ghfhd3cmr4sm0ho7dpk4fhlq1d1.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=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
+
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_51TgaYVEQHDJ5kzpvEY451F8E3QWD08CanvQdgwz3qttnzAFoIMvl3s8VXNqJ2h4BjsK9G1xw6nDFwYOz7C38bMlV00MyKHxIp4
+STRIPE_SECRET_KEY=sk_test_51TgaYVEQHDJ5kzpv4ZXTWTkft5mdJpn6BuyrnF2XGRLGR0PHfsZle3fJNJzRf8vFV9BtI1ve9YThn8cAnnYvfJBQ009W5yFDXO
 
 ```
 
