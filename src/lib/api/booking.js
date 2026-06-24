@@ -11,7 +11,13 @@ export const submitBookings = async (payload) => {
     return data;
 }
 
-export const getBookings = async (ownerEmail) => {
+export const getAllBookings = async () => {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URI}/bookings`)
+    const data = await res.json()
+    return data;
+}
+
+export const getOwnerBookings = async (ownerEmail) => {
     const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URI}/bookings/owner?ownerEmail=${ownerEmail}`)
     const data = res.json();
     return data;

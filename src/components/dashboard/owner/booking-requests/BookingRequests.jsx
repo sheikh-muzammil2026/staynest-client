@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import { User, MapPin, Check, X } from 'lucide-react';
-import { getBookings } from '@/lib/api/booking';
+import { getOwnerBookings } from '@/lib/api/booking';
 import { authClient } from '@/lib/auth-client';
 
 
@@ -10,14 +10,15 @@ export default function BookingRequests() {
     const [bookings, setBookings] = useState([]);
     const { data: session } = authClient.useSession();
     const user = session?.user;
+    const userEmail = user?.email;
 
     useEffect(() => {
         const fetchBookings = async () => {
-            const myBookings = await getBookings(user?.email)
+            const myBookings = await getOwnerBookings(userEmail)
             setBookings(myBookings)
         }
         fetchBookings()
-    }, [])
+    }, [userEmail])
 
     const handleAction = (id, actionType) => {
         setBookings(prev =>

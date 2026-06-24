@@ -33,7 +33,7 @@ export default function AllProperties() {
         fetchProperties();
     }, []);
 
-    // স্ট্যাটাস আপডেটের মূল ফাংশন
+
     const updateStatus = async (id, newStatus, feedback = '') => {
         try {
             const result = await updatePropertyStatus(id, newStatus, feedback);
@@ -64,13 +64,13 @@ export default function AllProperties() {
         setModalOpen(false);
     };
 
-    // ডিলিট বোতামে ক্লিক করলে মোডাল ওপেন হবে
+
     const handleOpenDeleteModal = (property) => {
         setPropertyToDelete(property);
         setDeleteModalOpen(true);
     };
 
-    // মোডালে "Confirm Delete" এ ক্লিক করলে এই ফাংশনটি চলবে
+
     const handleConfirmDelete = async () => {
         if (!propertyToDelete) return;
 
@@ -87,7 +87,7 @@ export default function AllProperties() {
             console.error("Error deleting property:", error);
             toast.error("Something went wrong while deleting the property.");
         } finally {
-            // অপারেশন শেষ হলে মোডাল বন্ধ এবং স্টেট ক্লিন করা হচ্ছে
+
             setDeleteModalOpen(false);
             setPropertyToDelete(null);
         }
@@ -146,8 +146,8 @@ export default function AllProperties() {
                                     <td className="p-5">
                                         <div className="space-y-1">
                                             <span className={`flex items-center gap-1.5 w-fit px-3 py-1 rounded-full text-xs font-bold ${p.status === 'Approved' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400' :
-                                                    p.status === 'Pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400' :
-                                                        'bg-rose-100 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400'
+                                                p.status === 'Pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400' :
+                                                    'bg-rose-100 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400'
                                                 }`}>
                                                 {p.status === 'Approved' && <CheckCircle size={14} />}
                                                 {p.status === 'Pending' && <Clock size={14} />}
@@ -172,7 +172,7 @@ export default function AllProperties() {
                                                 <XCircle size={18} />
                                             </button>
                                         )}
-                                        {/* কাস্টম মোডাল ওপেন করার জন্য এখানে পুরো অবজেক্ট 'p' পাস করা হয়েছে */}
+
                                         <button onClick={() => handleOpenDeleteModal(p)} className="p-2 text-slate-400 hover:text-rose-500 rounded-xl transition-colors">
                                             <Trash2 size={18} />
                                         </button>

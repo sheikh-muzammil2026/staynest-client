@@ -4,36 +4,21 @@ import { motion } from "framer-motion";
 import { getTenantBookings } from "@/lib/api/booking";
 import { authClient } from "@/lib/auth-client";
 
-// মক ডাটাবেজ (ডাটাবেজ থেকে আসা বুকিংয়ের লিস্ট)
-const mockBookings = [
-    {
-        id: 1,
-        propertyName: "Modern Manhattan Loft",
-        bookingDate: "June 12, 2026",
-        amountPaid: "$2,500",
-        bookingStatus: "Confirmed",
-        paymentStatus: "Paid",
-    },
-    {
-        id: 2,
-        propertyName: "Malibu Beachfront Villa",
-        bookingDate: "June 15, 2026",
-        amountPaid: "$4,500",
-        bookingStatus: "Pending",
-        paymentStatus: "Paid",
-    },
-];
 
 export default function MyBookings() {
     const [myBookings, setMyBookings] = useState([])
+    const [loading, setLoading] = useState(false)
     const { data: session } = authClient.useSession();
     const user = session?.user;
 
 
     useEffect(() => {
         const fetchMybookings = async () => {
+            setLoading(true)
             const bookings = await getTenantBookings(user?.email)
             setMyBookings(bookings)
+            console.log(bookings, "bookings from tenant dashboard")
+            setLoading(false)
         }
         fetchMybookings()
     }, [])
@@ -51,6 +36,7 @@ export default function MyBookings() {
 
             {/* রেসপন্সিভ টেবিল কন্টেইনার */}
             <div className="overflow-x-auto rounded-3xl border border-slate-200/60 dark:border-slate-800/80 bg-white dark:bg-[#131B2E]/40 backdrop-blur-md shadow-sm">
+                {loading && <p className="text-center">Loadng ...</p>}
                 <table className="w-full text-left border-collapse">
                     <thead>
                         <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30">
@@ -61,6 +47,7 @@ export default function MyBookings() {
                             <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Payment Status</th>
                         </tr>
                     </thead>
+
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800/40 text-sm font-medium">
                         {myBookings?.map((item, idx) => (
                             <motion.tr
@@ -71,7 +58,7 @@ export default function MyBookings() {
                                 className="hover:bg-slate-50/50 dark:hover:bg-slate-900/10 transition"
                             >
                                 <td className="p-4 text-slate-950 dark:text-white font-bold max-w-xs truncate">
-                                    {item.propertyName}
+                                    {item.propertyTitle}
                                 </td>
                                 <td className="p-4 text-slate-500 dark:text-slate-400">{item.bookedAt}</td>
                                 <td className="p-4 text-indigo-600 dark:text-indigo-400 font-black">{item.rent}</td>
