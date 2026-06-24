@@ -46,23 +46,23 @@ export const getFeaturedProperties = async () => {
 };
 
 
-export const PropertyDetailsById = async(id)=>{
-  const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URI}/properties/${id}`);
-  const data = await res.json();
-  return data;
+export const PropertyDetailsById = async (id) => {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URI}/properties/${id}`);
+    const data = await res.json();
+    return data;
 }
 
 
 // প্রপার্টি অ্যাড করার ফাংশন
 export const addProperty = async (propertyData) => {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URI}/owner/properties`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URI}/properties/owner`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(propertyData),
     });
-    
+
     const data = await response.json();
     if (!response.ok) {
         throw new Error(data.message || 'Something went wrong!');
@@ -108,9 +108,9 @@ export const deletePropertyById = async (id) => {
             },
             body: JSON.stringify({ id })
         });
-        
+
         if (!res.ok) throw new Error("Network response was not ok");
-        
+
         const data = await res.json();
         return data;
     } catch (error) {

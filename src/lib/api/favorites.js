@@ -1,19 +1,28 @@
+const SERVER_URI = process.env.NEXT_PUBLIC_SERVER_URI;
+
 export const submitFavorites = async (payload) => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URI}/favorites`, {
-        method: "POST",
-        headers: { "content-type": 'application/json' },
-        body: JSON.stringify(payload)
-    });
-    return await res.json();
+    try {
+        const res = await fetch(`${SERVER_URI}/favorites`, {
+            method: "POST",
+            headers: { "content-type": 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (!res.ok) return { error: "Failed to submit" };
+        return await res.json();
+    } catch (error) {
+        console.error("Error submitting favorite:", error);
+        return { error: error.message };
+    }
 };
 
 export const removeFromFavorite = async (favItemId, tenantEmail) => {
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URI}/favorites?favItemId=${favItemId}&tenantEmail=${tenantEmail}`, {
-            method: "DELETE", 
+        const res = await fetch(`${SERVER_URI}/favorites?favItemId=${favItemId}&tenantEmail=${tenantEmail}`, {
+            method: "DELETE",
             headers: { 'content-type': 'application/json' },
-            cache: 'no-store' 
+            cache: 'no-store'
         });
+        if (!res.ok) return { error: "Failed to delete" };
         return await res.json();
     } catch (error) {
         console.error("Error deleting favorite:", error);
@@ -21,24 +30,34 @@ export const removeFromFavorite = async (favItemId, tenantEmail) => {
     }
 };
 
-
-
-export const getFavorites = async()=>{
-  const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URI}/favorites`);
-  const data = await res.json();
-  return data;
-}
+export const getFavorites = async () => {
+    try {
+        // Next.js SSR/Build এরর এড়াতে ফুল URL হ্যান্ডেলিং
+        const res = await fetch(`${SERVER_URI}/favorites`, { cache: 'no-store' });
+        if (!res.ok) {
+            console.error(`Server returned status: ${res.status}`);
+            return []; // নিরাপদ খালি অ্যারে রিটার্ন
+        }
+        return await res.json();
+    } catch (error) {
+        console.error("Error fetching favorites:", error);
+        return []; // ক্র্যাশ না করে খালি অ্যারে দেবে
+    }
+};
 
 export const checkFavorite = async (email, propertyId) => {
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URI}/favorites/check?email=${email}&propertyId=${propertyId}`);
+        if (!email || !propertyId) return { isFavorite: false };
+
+        const res = await fetch(`${SERVER_URI}/favorites/check?email=${email}&propertyId=${propertyId}`, {
+            cache: 'no-store'
+        });
         if (!res.ok) {
             throw new Error("Network response was not ok");
         }
-        const data = await res.json();
-        return data;
+        return await res.json();
     } catch (error) {
         console.error("Error in checkFavorite API:", error);
-        return { isFavorite: false }; // সেফ ফলব্যাক
+        return { isFavorite: false };
     }
 };
