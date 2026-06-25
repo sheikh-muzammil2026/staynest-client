@@ -7,12 +7,6 @@ export default async function DashboardLayout({ children }) {
 
     const user = await getUserSession();
 
-
-
-    if (!user) {
-        redirect("/auth/login");
-    }
-
     return (
         <div className="h-screen w-full bg-[#F8FAFC] dark:bg-[#090D16] text-slate-950 dark:text-white transition-colors duration-300 flex flex-col lg:flex-row overflow-hidden">
 

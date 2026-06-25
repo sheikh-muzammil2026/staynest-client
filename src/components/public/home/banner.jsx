@@ -17,7 +17,7 @@ export default function Banner() {
     return (
         <div className="relative min-h-screen flex items-center justify-center bg-[#F8FAFC] dark:bg-[#090D16] overflow-hidden pt-20 transition-colors duration-300">
 
-            {/* 1. FIXED BACKGROUND IMAGE CONTAINER (Light & Dark Theme Optimized) */}
+
             <div className="absolute inset-0 z-0 pointer-events-none">
                 <Image
                     src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=1920&q=80"
@@ -26,17 +26,17 @@ export default function Banner() {
                     className="object-cover object-center opacity-[0.30] dark:opacity-[0.40]" // mix-blend-overlay বাদ দিয়ে ডিরেক্ট অপাসিটি কন্ট্রোল
                     priority
                 />
-                {/* ডার্ক মোডে ইমেজটি যেন টেক্সটের রিড্যাবিলিটি নষ্ট না করে তার জন্য একটি কালো লেয়ার */}
+
                 <div className="absolute inset-0 bg-transparent dark:bg-black/40"></div>
             </div>
 
-            {/* Modern Neon Ambient Glows */}
+
             <div className="absolute top-1/4 left-10 w-80 h-80 bg-indigo-500/10 dark:bg-indigo-500/20 rounded-full blur-[120px] pointer-events-none"></div>
             <div className="absolute bottom-1/4 right-10 w-96 h-96 bg-sky-500/10 dark:bg-sky-500/20 rounded-full blur-[150px] pointer-events-none"></div>
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
 
-                {/* Tagline */}
+
                 <motion.span
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -45,7 +45,7 @@ export default function Banner() {
                     ✨ Next-Gen Property Marketplace
                 </motion.span>
 
-                {/* 2. COMPELLING TITLE */}
+
                 <motion.h1
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -57,7 +57,7 @@ export default function Banner() {
                     </span>
                 </motion.h1>
 
-                {/* 3. SHORT & ENGAGING DESCRIPTION */}
+
                 <motion.p
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}

@@ -32,16 +32,16 @@ export const removeFromFavorite = async (favItemId, tenantEmail) => {
 
 export const getFavorites = async () => {
     try {
-        // Next.js SSR/Build এরর এড়াতে ফুল URL হ্যান্ডেলিং
+
         const res = await fetch(`${SERVER_URI}/favorites`, { cache: 'no-store' });
         if (!res.ok) {
             console.error(`Server returned status: ${res.status}`);
-            return []; // নিরাপদ খালি অ্যারে রিটার্ন
+            return [];
         }
         return await res.json();
     } catch (error) {
         console.error("Error fetching favorites:", error);
-        return []; // ক্র্যাশ না করে খালি অ্যারে দেবে
+        return [];
     }
 };
 

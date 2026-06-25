@@ -1,15 +1,14 @@
-import UserProfile from '@/components/shared/userProfile';
-import { getUserSession } from '@/lib/core/session';
+import OwnerDashboard from '@/components/dashboard/owner/page';
+// import { getUserSession } from '@/lib/core/session';
 import React from 'react';
 
-const OwnerProfilePage = async () => {
-    const user = await getUserSession();
-
+const ownerDashboardPage = async () => {
+    // const user = await getUserSession()
     return (
-        <div>
-            <UserProfile user={user} />
-        </div>
+        <OwnerDashboard
+        // user={user} 
+        />
     );
 };
 
-export default OwnerProfilePage;
+export default ownerDashboardPage;

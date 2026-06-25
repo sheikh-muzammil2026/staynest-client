@@ -1,4 +1,4 @@
-import AllProperties from "@/components/public/AllProperties/PropertiesClient";
+import AllProperties from "@/components/public/AllProperties/AllProperties";
 
 
 

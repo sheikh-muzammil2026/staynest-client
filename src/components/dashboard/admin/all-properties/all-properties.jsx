@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import { Home, CheckCircle, XCircle, Clock, MessageSquare, Trash2, AlertTriangle } from 'lucide-react';
-import { deletePropertyById, getAllProperties, updatePropertyStatus } from '@/lib/api/properties';
+import { deletePropertyById, trackAllProperties, updatePropertyStatus } from '@/lib/api/properties';
 import Loading from '@/app/loading';
 import { toast } from 'react-toastify';
 
@@ -22,7 +22,8 @@ export default function AllProperties() {
         const fetchProperties = async () => {
             try {
                 setLoading(true);
-                const data = await getAllProperties();
+                const data = await trackAllProperties();
+
                 setProperties(data);
             } catch (error) {
                 console.error("Error loading properties:", error);

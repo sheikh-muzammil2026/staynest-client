@@ -5,11 +5,9 @@ import Link from "next/link";
 import { useState } from "react";
 
 export default function RegisterPage() {
-
     const [showPassword, setShowPassword] = useState(false);
     const [role, setRole] = useState("tenant");
 
-    // ইমেইল রেজিস্ট্রেশন হ্যান্ডলার
     const handleRegister = async (e) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
@@ -22,7 +20,7 @@ export default function RegisterPage() {
             email: Registreddata.email,
             password: Registreddata.password,
             name: Registreddata.name,
-            image: Registreddata.image || " https://api.dicebear.com/7.x/bottts/svg?seed=Felix",
+            image: Registreddata.image || "https://api.dicebear.com/7.x/bottts/svg?seed=Felix",
             role: Registreddata.role
         }, {
             onSuccess: (ctx) => {
@@ -47,7 +45,6 @@ export default function RegisterPage() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC] dark:bg-[#090D16] px-4 py-24 transition-colors duration-300 relative overflow-hidden">
-            {/* Decorative Ambient Glows */}
             <div className="absolute top-[-10%] right-[-10%] w-96 h-96 bg-indigo-500/10 dark:bg-indigo-500/20 rounded-full blur-[100px] pointer-events-none"></div>
             <div className="absolute bottom-[-10%] left-[-10%] w-96 h-96 bg-sky-500/10 dark:bg-sky-500/20 rounded-full blur-[100px] pointer-events-none"></div>
 
@@ -56,9 +53,8 @@ export default function RegisterPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="w-full max-w-md bg-white/80 dark:bg-[#131B2E]/50 backdrop-blur-xl p-8 rounded-3xl border border-slate-200/60 dark:border-slate-800/80 shadow-xl shadow-slate-100 dark:shadow-none"
             >
-                {/* Header */}
                 <div className="text-center mb-8">
-                    <Link href="/" className="inline-flex items-center gap-2 mb-4">
+                    <Link href="/" className="inline-flex items-center gap-2 mb-4 cursor-pointer">
                         <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-600 to-sky-400 flex items-center justify-center text-white font-black">
                             D
                         </div>
@@ -68,19 +64,14 @@ export default function RegisterPage() {
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Join our marketplace as a new verified user</p>
                 </div>
 
-                {/* Form */}
                 <form onSubmit={handleRegister} className="space-y-4">
-
-                    {/* UNIQUE ROLE SELECTION */}
                     <div>
                         <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-2">I want to join as a</label>
                         <div className="grid grid-cols-2 gap-3 relative">
-
-                            {/* Tenant Button */}
                             <button
                                 type="button"
                                 onClick={() => setRole("tenant")}
-                                className={`relative p-3 rounded-xl border text-left transition-all overflow-hidden ${role === "tenant"
+                                className={`relative p-3 rounded-xl border text-left transition-all overflow-hidden cursor-pointer ${role === "tenant"
                                     ? "border-indigo-500 bg-indigo-500/5 dark:bg-indigo-500/10 shadow-sm"
                                     : "border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#090D16]/50 hover:bg-slate-100/50"
                                     }`}
@@ -94,11 +85,10 @@ export default function RegisterPage() {
                                 <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">Looking for a perfect place to live.</p>
                             </button>
 
-                            {/* Owner Button */}
                             <button
                                 type="button"
                                 onClick={() => setRole("owner")}
-                                className={`relative p-3 rounded-xl border text-left transition-all overflow-hidden ${role === "owner"
+                                className={`relative p-3 rounded-xl border text-left transition-all overflow-hidden cursor-pointer ${role === "owner"
                                     ? "border-indigo-500 bg-indigo-500/5 dark:bg-indigo-500/10 shadow-sm"
                                     : "border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#090D16]/50 hover:bg-slate-100/50"
                                     }`}
@@ -111,7 +101,6 @@ export default function RegisterPage() {
                                 </div>
                                 <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">Rent out or sell my property easily.</p>
                             </button>
-
                         </div>
                     </div>
 
@@ -148,7 +137,6 @@ export default function RegisterPage() {
                         />
                     </div>
 
-                    {/* PASSWORD FIELD WITH EYE ICON */}
                     <div>
                         <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-1.5">Password</label>
                         <div className="relative">
@@ -162,7 +150,7 @@ export default function RegisterPage() {
                             <button
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition"
+                                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition cursor-pointer"
                             >
                                 {showPassword ? (
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
@@ -180,24 +168,22 @@ export default function RegisterPage() {
 
                     <button
                         type="submit"
-                        className="w-full py-3.5 mt-2 bg-indigo-600 text-white font-bold text-sm rounded-xl hover:bg-indigo-500 transition shadow-lg shadow-indigo-500/20"
+                        className="w-full py-3.5 mt-2 bg-indigo-600 text-white font-bold text-sm rounded-xl hover:bg-indigo-500 transition shadow-lg shadow-indigo-500/20 cursor-pointer"
                     >
                         Create Account
                     </button>
                 </form>
 
-                {/* OR DIVIDER */}
                 <div className="relative flex py-4 items-center animate-none">
                     <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
                     <span className="flex-shrink mx-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Or continue with</span>
                     <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
                 </div>
 
-                {/* GOOGLE SIGN IN BUTTON */}
                 <button
                     type="button"
                     onClick={handleGoogleLogin}
-                    className="w-full flex items-center justify-center gap-2.5 py-3 border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-[#090D16]/30 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-[#090D16]/80 transition duration-200"
+                    className="w-full flex items-center justify-center gap-2.5 py-3 border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-[#090D16]/30 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-[#090D16]/80 transition duration-200 cursor-pointer"
                 >
                     <svg className="h-4 w-4" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path
@@ -220,9 +206,8 @@ export default function RegisterPage() {
                     <span>Sign up with Google</span>
                 </button>
 
-                {/* Redirect */}
                 <p className="text-center text-xs text-slate-500 dark:text-slate-400 mt-6">
-                    Already have an account? <Link href="/auth/login" className="text-indigo-500 font-semibold hover:underline">Sign In</Link>
+                    Already have an account? <Link href="/auth/login" className="text-indigo-500 font-semibold hover:underline cursor-pointer">Sign In</Link>
                 </p>
             </motion.div>
         </div>

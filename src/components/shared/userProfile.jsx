@@ -1,10 +1,10 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { User, Mail, Phone, MapPin, Camera, Lock, Save, Shield, Briefcase, CreditCard, Eye, EyeOff } from 'lucide-react';
+import { toast } from 'react-toastify';
 
 export default function UserProfile({ user }) {
 
-    // ইনিশিয়াল স্টেট
     const [profile, setProfile] = useState({
         name: '',
         email: '',
@@ -17,7 +17,7 @@ export default function UserProfile({ user }) {
         adminLevel: 'General Admin'
     });
 
-    // 🟢 VS Code-এর লাল দাগ ও ওয়ার্নিং দূর করার জন্য সঠিক useEffect মেকানিজম
+
     useEffect(() => {
         if (user) {
             setProfile((prevProfile) => ({
@@ -33,7 +33,7 @@ export default function UserProfile({ user }) {
                 adminLevel: user.adminLevel || 'General Admin'
             }));
         }
-    }, [user]); // শুধুমাত্র user চেঞ্জ হলেই এই ইফেক্টটি রান করবে
+    }, [user]);
 
     const [passwordData, setPasswordData] = useState({
         currentPassword: '',
@@ -41,7 +41,7 @@ export default function UserProfile({ user }) {
         confirmPassword: ''
     });
 
-    // পাসওয়ার্ড ফিল্ডের আইকন টগল স্টেট
+
     const [showCurrentPassword, setShowCurrentPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -49,22 +49,22 @@ export default function UserProfile({ user }) {
     const handleProfileSubmit = (e) => {
         e.preventDefault();
         console.log("Updated Profile Data for API:", profile);
-        alert(`${profile.role.toUpperCase()} profile updated successfully!`);
+        toast.success(`${profile.role.toUpperCase()} profile updated successfully!`);
     };
 
     const handlePasswordSubmit = (e) => {
         e.preventDefault();
         if (passwordData.newPassword !== passwordData.confirmPassword) {
-            alert("New passwords do not match!");
+            toast.success("New passwords do not match!");
             return;
         }
         console.log("Password Change Requested:", passwordData);
-        alert("Password updated successfully!");
+        toast.success("Password updated successfully!");
     };
 
     return (
         <div className="p-4 md:p-8 space-y-8 max-w-6xl mx-auto animate-in fade-in duration-500">
-            {/* 🟢 আপনার রিকোয়ারমেন্ট অনুযায়ী হেডারটি অপরিবর্তিত রাখা হয়েছে */}
+
             <header>
                 <h1 className="text-3xl font-bold text-slate-900 dark:text-white">My Profile</h1>
                 <p className="text-slate-500 dark:text-slate-400">Manage your StayNest account settings and information.</p>

@@ -59,7 +59,7 @@ export default function Navbar() {
                         <Link href="/" className="text-slate-600 dark:text-slate-300 hover:text-indigo-500 dark:hover:text-indigo-400 transition">Home</Link>
                         <Link href="/properties" className="text-slate-600 dark:text-slate-300 hover:text-indigo-500 dark:hover:text-indigo-400 transition">All Properties</Link>
 
-                        {/* 🛠️ ডাইনামিক ড্যাশবোর্ড রুট (ইউজার লগইন থাকলে রোল অনুযায়ী দেখাবে) */}
+
                         {user && (
                             <Link
                                 href={`/dashboard/${userRole}`}
@@ -78,9 +78,9 @@ export default function Navbar() {
                             {darkMode ? "☀️" : "🌙"}
                         </button>
 
-                        {/* 🔐 অ্যাথেনটিকেশন বাটন গ্রপ */}
+
                         {user ? (
-                            // লগইন থাকলে: শুধু Logout বাটন দেখাবে
+
                             <button
                                 onClick={handleLogout}
                                 className="px-5 py-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white transition font-semibold text-sm"
@@ -88,7 +88,7 @@ export default function Navbar() {
                                 Logout
                             </button>
                         ) : (
-                            // লগইন না থাকলে: Login এবং Get Started বাটন দেখাবে
+
                             <>
                                 <Link href="/auth/login" className="text-slate-700 dark:text-slate-300 hover:text-indigo-500 transition">Login</Link>
                                 <Link href="/auth/register" className="px-5 py-2.5 rounded-xl bg-slate-950 text-white dark:bg-indigo-600 dark:hover:bg-indigo-500 hover:bg-slate-800 transition shadow-md font-semibold text-sm">
@@ -123,7 +123,7 @@ export default function Navbar() {
                     <Link href="/" onClick={() => setIsOpen(false)} className="text-slate-600 dark:text-slate-300 py-1">Home</Link>
                     <Link href="/properties" onClick={() => setIsOpen(false)} className="text-slate-600 dark:text-slate-300 py-1">All Properties</Link>
 
-                    {/* মোবাইল ড্যাশবোর্ড লিঙ্ক */}
+
                     {user && (
                         <Link
                             href={`/dashboard/${userRole}`}
@@ -136,7 +136,7 @@ export default function Navbar() {
 
                     <hr className="border-slate-100 dark:border-slate-800/60" />
 
-                    {/* মোবাইল অ্যাথেনটিকেশন বাটন */}
+
                     {user ? (
                         <button
                             onClick={handleLogout}
