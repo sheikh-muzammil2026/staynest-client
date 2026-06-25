@@ -1,18 +1,89 @@
 "use client";
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { DollarSign, Home, Calendar, TrendingUp } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { authClient } from '@/lib/auth-client';
 
-const data = [
-    { name: 'Jan', earnings: 4000 }, { name: 'Feb', earnings: 3000 },
-    { name: 'Mar', earnings: 5000 }, { name: 'Apr', earnings: 4500 },
-    { name: 'May', earnings: 6000 }, { name: 'Jun', earnings: 5500 },
-    { name: 'Jul', earnings: 7000 }, { name: 'Aug', earnings: 8500 },
-    { name: 'Sep', earnings: 8000 }, { name: 'Oct', earnings: 9500 },
-    { name: 'Nov', earnings: 11000 }, { name: 'Dec', earnings: 13000 },
-];
+// গত ১২ মাসের একটি ব্ল্যাঙ্ক ম্যাপ তৈরি করার ফাংশন (যাতে চার্ট ব্রেক না করে)
+const generateLast12MonthsPlaceholder = () => {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const result = [];
+    const d = new Date();
+
+    for (let i = 11; i >= 0; i--) {
+        const m = new Date(d.getFullYear(), d.getMonth() - i, 1);
+        result.push({
+            name: months[m.getMonth()],
+            earnings: 0
+        });
+    }
+    return result;
+};
 
 export default function OwnerDashboard() {
+    const [analytics, setAnalytics] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    const { data: session, isPending: isSessionLoading } = authClient.useSession();
+    const user = session?.user;
+    const ownerEmail = user?.email;
+
+    useEffect(() => {
+        if (!ownerEmail) return;
+
+        const fetchAnalytics = async () => {
+            try {
+                setLoading(true);
+                const tokenResponse = await authClient.token();
+                const token = tokenResponse?.data?.token;
+
+                if (!token) {
+                    console.error("Token not found");
+                    setLoading(false);
+                    return;
+                }
+
+                const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URI}/owner/analytics?email=${ownerEmail}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error("Failed to fetch analytics data");
+                }
+
+                const data = await response.json();
+                setAnalytics(data);
+            } catch (err) {
+                console.error("Error loading analytics:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchAnalytics();
+    }, [ownerEmail]);
+
+    if (isSessionLoading || loading) {
+        return <div className="p-8 text-center text-slate-500">Loading Analytics...</div>;
+    }
+
+    if (!user) {
+        return <div className="p-8 text-center text-red-500">Please log in to view the dashboard.</div>;
+    }
+
+    const { totalEarnings, totalProperties, totalBookings } = analytics?.summary || { totalEarnings: 0, totalProperties: 0, totalBookings: 0 };
+
+    // চার্ট ডেটা মার্জিং: খালি মাসগুলোতে ০ বসানো
+    const placeholderData = generateLast12MonthsPlaceholder();
+    const apiChartData = analytics?.chartData || [];
+
+    const chartData = placeholderData.map(placeholder => {
+        const realData = apiChartData.find(d => d.name === placeholder.name);
+        return realData ? { ...placeholder, earnings: realData.earnings } : placeholder;
+    });
+
     return (
         <div className="space-y-6 p-4 md:p-8 animate-in fade-in duration-500">
             <header>
@@ -23,9 +94,9 @@ export default function OwnerDashboard() {
             {/* Summary Cards */}
             <div className="grid gap-6 md:grid-cols-3">
                 {[
-                    { title: "Total Earnings", val: "$34,500", icon: DollarSign, color: "text-emerald-500", bg: "bg-emerald-500/10" },
-                    { title: "Total Properties", val: "12", icon: Home, color: "text-blue-500", bg: "bg-blue-500/10" },
-                    { title: "Total Bookings", val: "48", icon: Calendar, color: "text-violet-500", bg: "bg-violet-500/10" },
+                    { title: "Total Earnings", val: `$${totalEarnings.toLocaleString()}`, icon: DollarSign, color: "text-emerald-500", bg: "bg-emerald-500/10" },
+                    { title: "Total Properties", val: totalProperties.toString(), icon: Home, color: "text-blue-500", bg: "bg-blue-500/10" },
+                    { title: "Total Bookings", val: totalBookings.toString(), icon: Calendar, color: "text-violet-500", bg: "bg-violet-500/10" },
                 ].map((card, i) => {
                     const Icon = card.icon;
                     return (
@@ -49,7 +120,7 @@ export default function OwnerDashboard() {
                 </h2>
                 <div className="h-[350px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={data}>
+                        <LineChart data={chartData}>
                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#33415520" />
                             <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8' }} fontSize={12} />
                             <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8' }} fontSize={12} tickFormatter={(v) => `$${v}`} />
