@@ -1,8 +1,10 @@
+import { authClient } from "../auth-client";
 
 export const trackAllProperties = async () => {
+
     const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URI}/admin/properties`);
-    const data = await res.json();
-    return data;
+    const propertiesData = await res.json();
+    return propertiesData;
 
 };
 
@@ -72,10 +74,13 @@ export const PropertyDetailsById = async (id) => {
 
 
 export const addProperty = async (propertyData) => {
+    const { data: token } = await authClient.token()
+    console.log(token.token)
     const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URI}/properties/owner`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            authorization: `Bearer: ${token?.token}`
         },
         body: JSON.stringify(propertyData),
     });
