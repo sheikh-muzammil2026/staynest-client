@@ -1,7 +1,8 @@
 "use client";
+
 import React, { useEffect, useState } from 'react';
-import { Shield, User, Users, Trash2, Check, AlertTriangle } from 'lucide-react';
-import { getUsers, updateUserRole, deleteUserById } from '@/lib/api/users'; // API সমূহ ইমপোর্ট করা হয়েছে
+import { Shield, User, Users, Trash2, Check, AlertTriangle, Loader2 } from 'lucide-react';
+import { getUsers, updateUserRole, deleteUserById } from '@/lib/api/users';
 import { toast } from 'react-toastify';
 
 export default function AllUsers() {
@@ -10,16 +11,17 @@ export default function AllUsers() {
     const [editingId, setEditingId] = useState(null);
     const [selectedRole, setSelectedRole] = useState('');
 
-    // কাস্টম ডিলিট মোডাল স্টেট
+    // Delete modal confirmation states
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [userToDelete, setUserToDelete] = useState(null);
 
+    // Fetch initial users list on component mount
     useEffect(() => {
         const fetchUsers = async () => {
             try {
                 setLoading(true);
                 const data = await getUsers();
-                setUsers(data);
+                setUsers(data || []);
             } catch (error) {
                 console.error("Error loading users:", error);
                 toast.error("Failed to load users");
@@ -30,7 +32,7 @@ export default function AllUsers() {
         fetchUsers();
     }, []);
 
-    // রোল চেঞ্জ হ্যান্ডেল করার ফাংশন
+    // Update specific user role status locally and via API
     const handleRoleChange = async (id) => {
         try {
             const result = await updateUserRole(id, selectedRole);
@@ -50,13 +52,12 @@ export default function AllUsers() {
         }
     };
 
-    // ডিলিট বোতামে ক্লিক করলে মোডাল ওপেন হবে
     const handleOpenDeleteModal = (user) => {
         setUserToDelete(user);
         setDeleteModalOpen(true);
     };
 
-    // মোডালে কনফার্ম করলে ডিলিট কার্যকর হবে
+    // Permanently wipe out user account by ID
     const handleConfirmDelete = async () => {
         if (!userToDelete) return;
 
@@ -79,96 +80,181 @@ export default function AllUsers() {
 
     return (
         <div className="p-4 md:p-8 animate-in fade-in duration-500 relative">
+            {/* Header Area */}
             <header className="mb-8">
-                <h1 className="text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <Users className="text-blue-500" /> Platform Users
+                <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <Users className="text-blue-500" size={28} /> Platform Users
                 </h1>
-                <p className="text-slate-500 dark:text-slate-400">Manage user roles, accounts, and system access levels.</p>
+                <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 mt-1">Manage user roles, accounts, and system access levels.</p>
             </header>
 
-            <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left">
-                        <thead className="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 text-sm uppercase">
-                            <tr>
-                                <th className="p-5">User Details</th>
-                                <th className="p-5">Joined Date</th>
-                                <th className="p-5">Current Role</th>
-                                <th className="p-5 text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100 dark:divide-slate-700 text-slate-700 dark:text-slate-300">
-                            {loading && (
-                                <tr>
-                                    <td colSpan="4" className="p-10 text-center text-slate-400">Loading users...</td>
-                                </tr>
-                            )}
-                            {!loading && users.length === 0 && (
-                                <tr>
-                                    <td colSpan="4" className="p-10 text-center text-slate-400 text-sm">No users found.</td>
-                                </tr>
-                            )}
-                            {!loading && users.map((user) => (
-                                <tr key={user._id} className="hover:bg-slate-50 dark:hover:bg-slate-900/20 transition-all">
-                                    <td className="p-5">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 bg-slate-100 dark:bg-slate-900 rounded-full flex items-center justify-center text-slate-400">
-                                                <User size={20} />
-                                            </div>
-                                            <div>
-                                                <h4 className="font-bold text-slate-900 dark:text-white">{user.name}</h4>
-                                                <p className="text-xs text-slate-400">{user.email}</p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="p-5 text-sm">{user.joined || "N/A"}</td>
-                                    <td className="p-5">
+            {/* Loading State Indicators */}
+            {loading && (
+                <div className="flex flex-col items-center justify-center p-16 bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+                    <p className="text-sm font-medium animate-pulse text-slate-500 mt-3">Loading system users...</p>
+                </div>
+            )}
+
+            {/* Empty Context State */}
+            {!loading && users.length === 0 && (
+                <div className="text-center p-16 text-slate-400 text-sm bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    No users found.
+                </div>
+            )}
+
+            {/* Responsive User View Control */}
+            {!loading && users.length > 0 && (
+                <>
+                    {/* Mobile & Tablet Layout: Card Layout (< md breakpoint) */}
+                    <div className="grid grid-cols-1 gap-4 md:hidden">
+                        {users.map((user) => (
+                            <div 
+                                key={user._id} 
+                                className="bg-white dark:bg-slate-800 p-5 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-slate-100 dark:bg-slate-900 rounded-full flex items-center justify-center text-slate-400 shrink-0">
+                                        <User size={18} />
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                        <h4 className="font-bold text-slate-900 dark:text-white text-base truncate">{user.name}</h4>
+                                        <p className="text-xs text-slate-400 truncate">{user.email}</p>
+                                    </div>
+                                </div>
+
+                                <div className="text-xs text-slate-500 dark:text-slate-400">
+                                    <span className="font-semibold">Joined:</span> {user.joined || "N/A"}
+                                </div>
+
+                                <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-700/50 pt-3 gap-2">
+                                    {/* Role Selection Actions */}
+                                    <div className="flex-1 min-w-0">
                                         {editingId === user._id ? (
-                                            <div className="flex items-center gap-2">
+                                            <div className="flex items-center gap-1.5">
                                                 <select
                                                     value={selectedRole}
                                                     onChange={(e) => setSelectedRole(e.target.value)}
-                                                    className="p-2 text-sm rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white outline-none"
+                                                    className="p-1.5 text-xs rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white outline-none w-full"
                                                 >
                                                     <option value="tenant">Tenant</option>
                                                     <option value="owner">Owner</option>
                                                     <option value="admin">Admin</option>
                                                 </select>
-                                                <button onClick={() => handleRoleChange(user._id)} className="p-2 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors">
-                                                    <Check size={16} />
+                                                <button onClick={() => handleRoleChange(user._id)} className="p-2 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors shrink-0">
+                                                    <Check size={14} />
                                                 </button>
                                             </div>
                                         ) : (
-                                            <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${user.role === 'admin' ? 'bg-rose-100 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400' :
-                                                    user.role === 'owner' ? 'bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400' :
-                                                        'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400'
-                                                }`}>
+                                            <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                                                user.role === 'admin' ? 'bg-rose-100 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400' :
+                                                user.role === 'owner' ? 'bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400' :
+                                                'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400'
+                                            }`}>
                                                 {user.role || 'tenant'}
                                             </span>
                                         )}
-                                    </td>
-                                    <td className="p-5 flex justify-center gap-2">
-                                        <button
-                                            onClick={() => { setEditingId(user._id); setSelectedRole(user.role || 'tenant'); }}
-                                            className="py-2 px-4 text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-700/50 rounded-xl transition-colors flex items-center gap-1"
-                                        >
-                                            <Shield size={14} /> Change Role
-                                        </button>
+                                    </div>
+
+                                    {/* System Modification Triggers */}
+                                    <div className="flex items-center gap-1 shrink-0">
+                                        {editingId !== user._id && (
+                                            <button
+                                                onClick={() => { setEditingId(user._id); setSelectedRole(user.role || 'tenant'); }}
+                                                className="py-1.5 px-3 text-[11px] font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-700/50 rounded-xl transition-colors flex items-center gap-1"
+                                            >
+                                                <Shield size={12} /> Role
+                                            </button>
+                                        )}
                                         <button
                                             onClick={() => handleOpenDeleteModal(user)}
                                             className="p-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-xl transition-all"
                                         >
-                                            <Trash2 size={16} />
+                                            <Trash2 size={15} />
                                         </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
 
-            {/* 🗑️ কাস্টম ডিলিট কনফার্মেশন মোডাল */}
+                    {/* Desktop Layout: Table View (>= md breakpoint) */}
+                    <div className="hidden md:block bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left">
+                                <thead className="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 text-sm uppercase">
+                                    <tr>
+                                        <th className="p-5">User Details</th>
+                                        <th className="p-5">Joined Date</th>
+                                        <th className="p-5">Current Role</th>
+                                        <th className="p-5 text-center">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100 dark:divide-slate-700 text-slate-700 dark:text-slate-300">
+                                    {users.map((user) => (
+                                        <tr key={user._id} className="hover:bg-slate-50 dark:hover:bg-slate-900/20 transition-all">
+                                            <td className="p-5">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 bg-slate-100 dark:bg-slate-900 rounded-full flex items-center justify-center text-slate-400">
+                                                        <User size={20} />
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="font-bold text-slate-900 dark:text-white">{user.name}</h4>
+                                                        <p className="text-xs text-slate-400">{user.email}</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="p-5 text-sm">{user.joined || "N/A"}</td>
+                                            <td className="p-5">
+                                                {editingId === user._id ? (
+                                                    <div className="flex items-center gap-2">
+                                                        <select
+                                                            value={selectedRole}
+                                                            onChange={(e) => setSelectedRole(e.target.value)}
+                                                            className="p-2 text-sm rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white outline-none"
+                                                        >
+                                                            <option value="tenant">Tenant</option>
+                                                            <option value="owner">Owner</option>
+                                                            <option value="admin">Admin</option>
+                                                        </select>
+                                                        <button onClick={() => handleRoleChange(user._id)} className="p-2 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors">
+                                                            <Check size={16} />
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+                                                        user.role === 'admin' ? 'bg-rose-100 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400' :
+                                                        user.role === 'owner' ? 'bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400' :
+                                                        'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400'
+                                                    }`}>
+                                                        {user.role || 'tenant'}
+                                                    </span>
+                                                )}
+                                            </td>
+                                            <td className="p-5 flex justify-center items-center gap-2">
+                                                <button
+                                                    onClick={() => { setEditingId(user._id); setSelectedRole(user.role || 'tenant'); }}
+                                                    className="py-1.5 px-3 text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-700/50 rounded-xl transition-colors flex items-center gap-1"
+                                                >
+                                                    <Shield size={14} /> Change Role
+                                                </button>
+                                                <button
+                                                    onClick={() => handleOpenDeleteModal(user)}
+                                                    className="p-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-xl transition-all"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </>
+            )}
+
+            {/* Custom Account Destruction Confirmation Modal */}
             {deleteModalOpen && (
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
                     <div className="bg-white dark:bg-slate-800 rounded-[2rem] p-6 max-w-md w-full border border-slate-200 dark:border-slate-700 shadow-2xl space-y-4 text-center">
@@ -182,13 +268,13 @@ export default function AllUsers() {
                         <div className="flex gap-2 justify-center pt-2">
                             <button
                                 onClick={() => { setDeleteModalOpen(false); setUserToDelete(null); }}
-                                className="py-2.5 px-5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-200 transition-all"
+                                className="py-2 px-4 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-xl text-xs md:text-sm font-semibold text-slate-700 dark:text-slate-200 transition-all"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={handleConfirmDelete}
-                                className="py-2.5 px-6 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-sm font-bold transition-all shadow-md shadow-rose-500/20"
+                                className="py-2 px-4 md:px-5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs md:text-sm font-bold transition-all shadow-md shadow-rose-500/20"
                             >
                                 Delete User
                             </button>
