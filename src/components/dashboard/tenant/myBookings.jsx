@@ -5,26 +5,19 @@ import { motion } from "framer-motion";
 import { getTenantBookings } from "@/lib/api/booking";
 import { authClient } from "@/lib/auth-client";
 
-interface BookingItem {
-  _id: string;
-  propertyTitle: string;
-  bookedAt: string;
-  rent: number | string;
-  status: string;
-  bookingStatus: string;
-  paymentStatus: string;
-}
-
 export default function MyBookings() {
-  const [myBookings, setMyBookings] = useState<BookingItem[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const { data: session } = authClient.useSession();
+ 
+  const [myBookings, setMyBookings] = useState([]);
+  const [loading, setLoading] = useState(false);
+  
+  // Destructured 'isPending' to track auth session loading state
+  const { data: session, isPending: isSessionLoading } = authClient.useSession();
   const user = session?.user;
-
-  // Storing the email in a stable primitive variable for the dependency array
   const userEmail = user?.email;
 
-  // Fetch bookings based on the extracted user email
+  // Combined loading state for auth session and API fetch
+  const isPageLoading = loading || isSessionLoading;
+
   useEffect(() => {
     const fetchMyBookings = async () => {
       if (!userEmail) return;
@@ -41,7 +34,7 @@ export default function MyBookings() {
     };
 
     fetchMyBookings();
-  }, [userEmail]); // Safely track only the email string
+  }, [userEmail]); // Safely track only the email string variable
 
   return (
     <div className="space-y-6 p-4 md:p-0">
@@ -56,21 +49,21 @@ export default function MyBookings() {
       </div>
 
       {/* Loading state indicator */}
-      {loading && (
+      {isPageLoading && (
         <div className="flex justify-center items-center py-8">
           <p className="text-sm font-medium text-slate-500 animate-pulse">Loading bookings...</p>
         </div>
       )}
 
-      {/* Empty state handler */}
-      {!loading && myBookings.length === 0 && (
+      {/* Empty state handler - only shows when loading is fully complete */}
+      {!isPageLoading && myBookings.length === 0 && (
         <div className="text-center py-12 border border-dashed rounded-3xl border-slate-200 dark:border-slate-800">
           <p className="text-sm text-slate-500">No bookings found.</p>
         </div>
       )}
 
       {/* Responsive layout containing card view and table view */}
-      {!loading && myBookings.length > 0 && (
+      {!isPageLoading && myBookings.length > 0 && (
         <>
           {/* Mobile & Tablet layout: Card view visible below md breakpoint */}
           <div className="grid grid-cols-1 gap-4 md:hidden">
@@ -97,7 +90,7 @@ export default function MyBookings() {
 
                 <div className="flex gap-2 pt-1">
                   <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider ${
-                    item.bookingStatus === "Confirmed"
+                    item.status === "Approved"
                       ? "bg-emerald-500/10 text-emerald-500"
                       : "bg-amber-500/10 text-amber-500"
                   }`}>
@@ -140,11 +133,11 @@ export default function MyBookings() {
                     <td className="p-4 text-indigo-600 dark:text-indigo-400 font-black">{item.rent}</td>
                     <td className="p-4">
                       <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider ${
-                        item.bookingStatus === "Confirmed"
+                        item.bookingStatus === "Approved"
                           ? "bg-emerald-500/10 text-emerald-500"
                           : "bg-amber-500/10 text-amber-500"
                       }`}>
-                        {item.status}
+                        {item?.bookingStatus}
                       </span>
                     </td>
                     <td className="p-4">
