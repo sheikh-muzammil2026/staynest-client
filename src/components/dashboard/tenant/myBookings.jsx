@@ -133,11 +133,11 @@ export default function MyBookings() {
                     <td className="p-4 text-indigo-600 dark:text-indigo-400 font-black">{item.rent}</td>
                     <td className="p-4">
                       <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider ${
-                        item.bookingStatus === "Approved"
+                        item.status === "Approved"
                           ? "bg-emerald-500/10 text-emerald-500"
                           : "bg-amber-500/10 text-amber-500"
                       }`}>
-                        {item?.bookingStatus}
+                        {item?.status}
                       </span>
                     </td>
                     <td className="p-4">
