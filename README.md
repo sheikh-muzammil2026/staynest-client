@@ -2,7 +2,30 @@
 
 **StayNest** is a modern, responsive, and full-stack Property Management Application designed to bridge the gap between tenants, property owners, and administrators. Built with Next.js (App Router), Tailwind CSS, and a robust real-time analytics engine, it offers role-based functionalities, secure dashboards, and an interactive interface.
 
+
 ---
+
+## 🔗 Deployment & Repository Links
+
+* **Live Deployment Link:** https://staynest-client.vercel.app
+* **Client-Side Repository (Frontend):** https://github.com/sheikh-muzammil2026/staynest-client
+* **Server-Side Repository (Backend):** https://github.com/sheikh-muzammil2026/staynest-server
+
+---
+
+## 🔑 Demo Access Credentials (For Evaluation)
+To test the role-based access control without creating a new account, please use the following credentials:
+
+* **Administrator Account:**
+  * **Email:** `admin@gmail.com`
+  * **Password:** `1234567890`
+* **Tenant Account (For Reviews):**
+  * **Email:** `tenant@gmail.com`
+  * **Password:** `1234567890`
+
+---
+---
+
 
 ## 📌 Project Overview & Purpose
 The main objective of StayNest is to streamline property hunting, booking, and platform management. It offers:
@@ -62,7 +85,7 @@ yarn install
 ### 3. Configure Environment Variables
 Create a .env.local file in the root directory of the project and define your backend service URI:
 ```env
-NEXT_PUBLIC_SERVER_URI=[https://your-api-server.com/api](https://your-api-server.com/api)
+NEXT_PUBLIC_SERVER_URI=https://your-api-server.com
 
 ```
 ### 4. Start the Development Server
@@ -73,6 +96,7 @@ yarn dev
 
 ```
 Open http://localhost:3000 in your web browser to explore the platform.
+
 
 ```
 ## 🔒 Security & Data Validation Guidelines
