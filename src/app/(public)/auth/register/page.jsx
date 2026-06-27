@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { Loader2 } from "lucide-react";
 
 /**
  * @typedef {Object} RegisterFormData
