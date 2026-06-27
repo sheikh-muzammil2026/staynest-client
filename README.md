@@ -97,8 +97,6 @@ yarn dev
 ```
 Open http://localhost:3000 in your web browser to explore the platform.
 
-
-```
 ## 🔒 Security & Data Validation Guidelines
  * **Route Guards:** Intercepts unauthenticated sessions or invalid user roles instantly to prevent data leaks.
  * **Safe Parsers:** Applies native .trim() and Number() wrappers to client side data inputs before submitting payrolls to prevent DB errors.
