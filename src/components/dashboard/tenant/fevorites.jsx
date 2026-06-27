@@ -1,25 +1,50 @@
 "use client";
-import { removeFromFavorite } from "@/lib/api/favorites";
+import { removeFromFavorite, getFavorites } from "@/lib/api/favorites";
 import { authClient } from "@/lib/auth-client";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 
-export default function Favorites({ data }) {
-    const [favorites, setFavorites] = useState(data);
+export default function Favorites() {
+    const [favorites, setFavorites] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     const { data: session } = authClient.useSession();
     const user = session?.user;
+    const userEmail = user?.email;
+
+    useEffect(() => {
+        const loadFavorites = async () => {
+            if (!user?.email) return;
+
+            try {
+                setLoading(true);
+                const data = await getFavorites(userEmail);
+                setFavorites(data || []);
+            } catch (error) {
+                console.error("Failed to load favorites:", error);
+                toast.error("Could not fetch favorites");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadFavorites();
+    }, [userEmail]);
 
     const handleRemove = async (favItem) => {
         console.log(favItem, "from handle remove button");
         const favItemId = favItem?._id;
 
-        const result = await removeFromFavorite(favItemId, user?.email);
+        if (!user?.email) {
+            toast.error("User email not found");
+            return;
+        }
 
-        if (result && result.deletedCount > 0) {
+        const result = await removeFromFavorite(favItemId, userEmail);
+
+        if (result && (result.deletedCount > 0 || result.success)) {
             toast.success("Removed from favorites");
-
             const filteredFavorites = favorites.filter(item => item._id !== favItemId);
             setFavorites(filteredFavorites);
         } else {
@@ -50,18 +75,27 @@ export default function Favorites({ data }) {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800/40 text-sm font-medium">
-                        <AnimatePresence>
-                            {favorites?.length > 0 ? (
-                                favorites?.map((item) => (
+                        <AnimatePresence mode="popLayout">
+                            {loading ? (
+                                // ডাটা লোড হওয়ার সময়ের স্টেট
+                                <tr>
+                                    <td colSpan="3" className="p-12 text-center text-xs text-slate-400 dark:text-slate-500 font-medium">
+                                        ⏳ Loading your favorite properties...
+                                    </td>
+                                </tr>
+                            ) : favorites?.length > 0 ? (
+                                favorites.map((item) => (
                                     <motion.tr
                                         key={item._id}
-                                        exit={{ opacity: 0, x: -20 }}
+                                        layout
+                                        initial={{ opacity: 1 }}
+                                        exit={{ opacity: 0, x: -30, bg: "rgba(239, 68, 68, 0.05)" }}
                                         transition={{ duration: 0.2 }}
                                         className="hover:bg-slate-50/50 dark:hover:bg-slate-900/10 transition"
                                     >
                                         <td className="p-4">
                                             <div className="font-bold text-slate-950 dark:text-white">{item?.propertyTitle}</div>
-                                            <div className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">📍 {item.location}</div>
+                                            <div className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">📍 {item?.location}</div>
                                         </td>
                                         <td className="p-4 text-slate-700 dark:text-slate-300 font-bold">{item?.rent}</td>
                                         <td className="p-4 text-right">
@@ -75,11 +109,15 @@ export default function Favorites({ data }) {
                                     </motion.tr>
                                 ))
                             ) : (
-                                <tr>
+                                // ডাটা একদম না থাকলে বা খালি হলে এই স্টেট দেখাবে
+                                <motion.tr
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                >
                                     <td colSpan="3" className="p-12 text-center text-xs text-slate-400 dark:text-slate-500 font-medium">
                                         🔍 No properties added to favorites yet.
                                     </td>
-                                </tr>
+                                </motion.tr>
                             )}
                         </AnimatePresence>
                     </tbody>

@@ -53,14 +53,21 @@ export const removeFromFavorite = async (favItemId, tenantEmail) => {
 };
 
 /**
- * 📋 Fetch all favorite properties (Protected)
+ * 📋 Fetch all favorite properties for a specific user (Protected)
+ * এখানে email প্যারামিটার যুক্ত করা হয়েছে এবং কুয়েরি স্ট্রিং-এ পাঠানো হচ্ছে
  */
-export const getFavorites = async () => {
+export const getFavorites = async (email) => {
     try {
+        if (!email) {
+            console.error("Email is missing in getFavorites call");
+            return [];
+        }
+
         const headers = await getAuthHeaders();
-        const res = await fetch(`${SERVER_URI}/favorites`, { 
+        // ইউআরএল-এর শেষে ?email=${email} যুক্ত করা হয়েছে
+        const res = await fetch(`${SERVER_URI}/favorites?email=${email}`, {
             headers,
-            cache: 'no-store' 
+            cache: 'no-store'
         });
         if (!res.ok) {
             console.error(`Server returned status: ${res.status}`);
