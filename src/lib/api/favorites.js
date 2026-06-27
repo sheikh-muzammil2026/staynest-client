@@ -54,7 +54,6 @@ export const removeFromFavorite = async (favItemId, tenantEmail) => {
 
 /**
  * 📋 Fetch all favorite properties for a specific user (Protected)
- * এখানে email প্যারামিটার যুক্ত করা হয়েছে এবং কুয়েরি স্ট্রিং-এ পাঠানো হচ্ছে
  */
 export const getFavorites = async (email) => {
     try {
@@ -64,7 +63,7 @@ export const getFavorites = async (email) => {
         }
 
         const headers = await getAuthHeaders();
-        // ইউআরএল-এর শেষে ?email=${email} যুক্ত করা হয়েছে
+
         const res = await fetch(`${SERVER_URI}/favorites?email=${email}`, {
             headers,
             cache: 'no-store'

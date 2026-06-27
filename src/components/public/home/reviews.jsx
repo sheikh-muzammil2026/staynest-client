@@ -1,39 +1,40 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Avatar, Card } from "@heroui/react";
 import { motion } from "framer-motion";
-
-// ৪টি রিয়ালিস্টিক টেন্যান্ট রিভিউ ডাটা
-const reviews = [
-    {
-        name: "Liam Sterling",
-        role: "Tenant since 2024",
-        comment: "Securing an apartment through StayNest was completely hands-free. The instant lease generation saved me days of paperwork.",
-        avatar: "https://i.pravatar.cc/150?u=a042581f2e29026024d"
-    },
-    {
-        name: "Aria Montgomery",
-        role: "Verified Tenant",
-        comment: "Stripe payments are instantaneous. I loved how transparent the platform is regarding owner moderation. Safe experience!",
-        avatar: "https://i.pravatar.cc/150?u=a042581f2e29026704d"
-    },
-    {
-        name: "Marcus Vance",
-        role: "Studio Renter",
-        comment: "What blew me away was the UI cleanliness. No spam listings, no fake pictures. Highly recommend StayNest for busy pros.",
-        avatar: "https://i.pravatar.cc/150?u=a04258114e29026702d"
-    },
-    {
-        name: "Elena Rostova",
-        role: "Loft Tenant",
-        comment: "The support team helped me coordinate my move-in seamlessly. Direct dashboard routing to private owner chats is a game-changer.",
-        avatar: "https://i.pravatar.cc/150?u=a04258114e29026708d"
-    }
-];
+import { getPublicReviews } from "@/lib/api/reviews";
 
 export default function Reviews() {
-    // ইনফিনিট লুপ ট্রিক: অ্যানিমেশন সিমলেস রাখার জন্য ডাটা ডাবল করা হলো
+    const [reviews, setReviews] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+
+    useEffect(() => {
+        const fetchReviews = async () => {
+            setLoading(true);
+            const data = await getPublicReviews();
+            setReviews(data || []);
+            setLoading(false);
+        };
+        fetchReviews();
+    }, []);
+
+
     const duplicatedReviews = [...reviews, ...reviews];
+
+
+    if (loading) {
+        return (
+            <div className="py-24 text-center text-xs text-slate-400 dark:text-slate-500 font-medium bg-[#F8FAFC] dark:bg-[#090D16]">
+                ⏳ Loading trusted reviews...
+            </div>
+        );
+    }
+
+
+    if (reviews.length === 0) {
+        return null; // অথবা কোনো ডিফল্ট মেসেজ দেখাতে পারেন
+    }
 
     return (
         <section className="py-24 bg-[#F8FAFC] dark:bg-[#090D16] overflow-hidden w-full transition-colors duration-300">
@@ -53,13 +54,13 @@ export default function Reviews() {
 
                 <motion.div
                     className="flex gap-6 whitespace-nowrap min-w-full py-4 px-2"
-                    // ডান থেকে বামে নিরবচ্ছিন্ন লুপ অ্যানিমেশন
+
                     animate={{
                         x: ["0%", "-50%"],
                     }}
                     transition={{
                         ease: "linear",
-                        duration: 25, // গতি পরিবর্তন করতে চাইলে এখানে সেকেন্ড বাড়াতে/কমাতে পারেন
+                        duration: 25,
                         repeat: Infinity,
                     }}
                 >
@@ -75,10 +76,11 @@ export default function Reviews() {
                                     "{review.comment}"
                                 </p>
 
-                                {/* ইউজার বায়ো */}
+                                {/* ইউজার বায়ো */}
                                 <div className="flex items-center gap-3 text-left">
                                     <Avatar
-                                        src={review.avatar}
+
+                                        src={review.avatar || `https://i.pravatar.cc/150?u=${review._id}`}
                                         className="border-2 border-indigo-500/30 w-10 h-10 rounded-xl"
                                     />
                                     <div className="flex flex-col">
@@ -86,7 +88,7 @@ export default function Reviews() {
                                             {review.name}
                                         </h4>
                                         <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium mt-0.5">
-                                            {review.role}
+                                            {review.role || `Verified Tenant`}
                                         </p>
                                     </div>
                                 </div>

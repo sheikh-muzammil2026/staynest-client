@@ -60,3 +60,24 @@ export const getReviews = async (propertyId) => {
         return [];
     }
 };
+
+
+
+/**
+ * 📋 Fetch all reviews for the public review marquee
+ */
+export const getPublicReviews = async () => {
+    try {
+        const res = await fetch(`${SERVER_URI}/public-reviews`, {
+            cache: 'no-store'
+        });
+
+        if (!res.ok) throw new Error("Failed to fetch public reviews");
+
+        const data = await res.json();
+        return data;
+    } catch (error) {
+        console.error("Error in getPublicReviews API:", error);
+        return [];
+    }
+};
