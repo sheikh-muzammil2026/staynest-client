@@ -1,21 +1,68 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Card, Button } from "@heroui/react";
+import { Card, Button, Spinner } from "@heroui/react";
+import { authClient } from '@/lib/auth-client';
 
 export default function TenantHome({ setActiveTab }) {
-    // মক ডাটা (ইউজারের রিয়াল-টাইম ড্যাশবোর্ড সামারি)
+    // 💡 আপনার Auth System (Firebase/NextAuth/Custom) থেকে টেন্যান্টের ইমেইলটি এখানে বসাবেন
+    const { data: session } = authClient.useSession();
+    const user = session?.user;
+    const userEmail = user?.email;
+
+    const [analytics, setAnalytics] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (!userEmail) return;
+
+        // ব্যাকেন্ড থেকে ডায়নামিক ডেটা ফেচ করা
+        fetch(`http://localhost:8000/tenant/analytics?email=${userEmail}`)
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.success) {
+                    setAnalytics(data);
+                }
+                setLoading(false);
+            })
+            .catch((err) => {
+                console.error("Error loading tenant dashboard:", err);
+                setLoading(false);
+            });
+    }, [userEmail]);
+
+    if (loading) {
+        return (
+            <div className="h-[60vh] flex flex-col justify-center items-center gap-2">
+                <Spinner color="indigo" size="lg" />
+                <p className="text-xs text-slate-500 font-medium">Loading your dashboard info...</p>
+            </div>
+        );
+    }
+
+    // ব্যাকেন্ড থেকে আসা ডেটা সাজানো
     const stats = [
-        { title: "Total Bookings", value: "02", icon: "📋", color: "from-indigo-500/10 to-purple-500/10 text-indigo-600 dark:text-indigo-400" },
-        { title: "Favorite Spaces", value: "05", icon: "❤️", color: "from-rose-500/10 to-orange-500/10 text-rose-500" },
-        { title: "Monthly Leases", value: "$4,300", icon: "💰", color: "from-emerald-500/10 to-teal-500/10 text-emerald-500" },
+        { 
+            title: "Total Bookings", 
+            value: String(analytics?.summary?.totalBookings || 0).padStart(2, '0'), 
+            icon: "📋", 
+            color: "from-indigo-500/10 to-purple-500/10 text-indigo-600 dark:text-indigo-400" 
+        },
+        { 
+            title: "Favorite Spaces", 
+            value: String(analytics?.summary?.totalFavorites || 0).padStart(2, '0'), 
+            icon: "❤️", 
+            color: "from-rose-500/10 to-orange-500/10 text-rose-500" 
+        },
+        { 
+            title: "Total Spent", 
+            value: `$${analytics?.summary?.totalSpent?.toLocaleString() || 0}`, 
+            icon: "💰", 
+            color: "from-emerald-500/10 to-teal-500/10 text-emerald-500" 
+        },
     ];
 
-    const recentActivities = [
-        { id: 1, type: "booking", text: "Your booking for 'Modern Manhattan Loft' was approved.", time: "2 hours ago" },
-        { id: 2, type: "payment", text: "Invoice #STN-9821 for $2,500 successfully paid.", time: "1 day ago" },
-        { id: 3, type: "system", text: "Welcome to StayNest! Account verification completed.", time: "3 days ago" },
-    ];
+    const recentActivities = analytics?.recentActivities || [];
 
     return (
         <div className="space-y-10">
