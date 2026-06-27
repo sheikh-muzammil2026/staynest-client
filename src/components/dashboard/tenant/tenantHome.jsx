@@ -5,7 +5,6 @@ import { Card, Button, Spinner } from "@heroui/react";
 import { authClient } from '@/lib/auth-client';
 
 export default function TenantHome({ setActiveTab }) {
-    // 💡 আপনার Auth System (Firebase/NextAuth/Custom) থেকে টেন্যান্টের ইমেইলটি এখানে বসাবেন
     const { data: session } = authClient.useSession();
     const user = session?.user;
     const userEmail = user?.email;
@@ -16,19 +15,37 @@ export default function TenantHome({ setActiveTab }) {
     useEffect(() => {
         if (!userEmail) return;
 
-        // ব্যাকেন্ড থেকে ডায়নামিক ডেটা ফেচ করা
-        fetch(`${process.env.NEXT_PUBLIC_SERVER_URI}/tenant/analytics?email=${userEmail}`)
-            .then((res) => res.json())
-            .then((data) => {
+        const fetchTenantAnalytics = async () => {
+            try {
+                // authClient থেকে টোকেন গেট করা হচ্ছে
+                const { data: tokenData } = await authClient.token();
+                const token = tokenData?.token;
+
+                const res = await fetch(
+                    `${process.env.NEXT_PUBLIC_SERVER_URI}/tenant/analytics?email=${userEmail}`,
+                    {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                            ...(token ? { "Authorization": `Bearer ${token}` } : {})
+                        }
+                    }
+                );
+
+                if (!res.ok) throw new Error("Failed to fetch tenant analytics");
+
+                const data = await res.json();
                 if (data.success) {
                     setAnalytics(data);
                 }
-                setLoading(false);
-            })
-            .catch((err) => {
+            } catch (err) {
                 console.error("Error loading tenant dashboard:", err);
+            } finally {
                 setLoading(false);
-            });
+            }
+        };
+
+        fetchTenantAnalytics();
     }, [userEmail]);
 
     if (loading) {
