@@ -13,8 +13,6 @@ export default function PropertyDetails({ property }) {
     const [isFavorite, setIsFavorite] = useState(false);
     const [favoriteId, setFavoriteId] = useState(null);
     const [isBookingOpen, setIsBookingOpen] = useState(false);
-
-
     const [isCheckingFavorite, setIsCheckingFavorite] = useState(true);
 
     const [mainImage, setMainImage] = useState(
@@ -23,7 +21,6 @@ export default function PropertyDetails({ property }) {
 
     const { data: session } = authClient.useSession();
     const currentUser = session?.user;
-
 
     useEffect(() => {
         const checkFavId = async () => {
@@ -75,7 +72,6 @@ export default function PropertyDetails({ property }) {
                 const result = await submitFavorites(favoritesPayload);
                 console.log(result, "result after added favorites");
 
-
                 const insertedId = result?.insertedId || result?._id || result?.data?.insertedId || result?.data?._id;
 
                 if (insertedId) {
@@ -83,7 +79,6 @@ export default function PropertyDetails({ property }) {
                     setIsFavorite(true);
                     toast.success("Added to favorites list!");
                 } else {
-
                     const checkData = await checkFavorite(currentUser.email, property._id);
                     if (checkData && checkData.isFavorite) {
                         setFavoriteId(checkData.favoriteId);
@@ -124,7 +119,6 @@ export default function PropertyDetails({ property }) {
         <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#090D16] text-slate-950 dark:text-white px-4 sm:px-6 lg:px-8 py-24 transition-colors duration-300">
             <div className="max-w-7xl mx-auto space-y-8">
 
-                {/* ১. টপ হেডার ব্যাজ সেকশন */}
                 <div className="flex flex-wrap justify-between items-center gap-4 mb-4">
                     <div className="flex items-center gap-3">
                         <span className="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/50">
@@ -142,10 +136,8 @@ export default function PropertyDetails({ property }) {
                     </div>
                 </div>
 
-                {/* ২. মেইন লেআউট গ্রিড আর্কিটেকচার */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
-                    {/* বাম কলাম */}
                     <div className="lg:col-span-8 space-y-8">
                         <div className="space-y-4">
                             <div className="relative h-[300px] sm:h-[450px] w-full rounded-3xl overflow-hidden bg-slate-100 dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/70 shadow-sm">
@@ -154,7 +146,7 @@ export default function PropertyDetails({ property }) {
                                     priority
                                     src={mainImage}
                                     alt={property.propertyTitle || "Property Image"}
-                                    sizes="(max-w-1200px) 100vw, 80vw"
+                                    sizes="(max-width: 1200px) 100vw, 80vw"
                                     className="w-full h-full object-cover object-center transition-all duration-500"
                                 />
                             </div>
@@ -235,7 +227,6 @@ export default function PropertyDetails({ property }) {
                         </div>
                     </div>
 
-                    {/* ডান কলাম: প্রাইস কার্ড এবং অ্যাকশন বাটন */}
                     <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
                         <div className="bg-white/80 dark:bg-[#131B2E]/40 backdrop-blur-md border border-slate-200/60 dark:border-slate-800/70 p-6 rounded-3xl shadow-sm text-center lg:text-left space-y-4">
                             <div>
@@ -247,7 +238,6 @@ export default function PropertyDetails({ property }) {
                             </div>
 
                             <div className="flex flex-col gap-3 pt-2">
-                                {/* 🟢 ফেভারিট বাটন উইথ সেফটি স্টেট */}
                                 <button
                                     onClick={handleAddToFavorite}
                                     disabled={favoriteLoading || isCheckingFavorite}

@@ -8,7 +8,6 @@ export default function Navbar() {
     const [darkMode, setDarkMode] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
 
-    // Sync theme with local storage and system preferences
     useEffect(() => {
         const theme = localStorage.getItem("theme");
         if (theme === "dark" || (!theme && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
@@ -42,7 +41,6 @@ export default function Navbar() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between h-20 items-center">
 
-                    {/* Brand Logo */}
                     <Link href="/" className="flex items-center gap-2 group">
                         <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-sky-400 flex items-center justify-center text-white font-black shadow-lg shadow-indigo-500/20">
                             S
@@ -52,7 +50,6 @@ export default function Navbar() {
                         </span>
                     </Link>
 
-                    {/* Desktop Navigation */}
                     <div className="hidden md:flex items-center gap-6 font-medium">
                         <Link href="/" className="text-slate-600 dark:text-slate-300 hover:text-indigo-500 dark:hover:text-indigo-400 transition">Home</Link>
                         <Link href="/properties" className="text-slate-600 dark:text-slate-300 hover:text-indigo-500 dark:hover:text-indigo-400 transition">All Properties</Link>
@@ -74,10 +71,8 @@ export default function Navbar() {
                             {darkMode ? "☀️" : "🌙"}
                         </button>
 
-                        {/* Authentication UI */}
                         {user ? (
                             <div className="flex items-center gap-4 pl-2 border-l border-slate-200 dark:border-slate-800">
-                                {/* Professional User Profile Widget */}
                                 <div className="flex flex-col items-end raw-container">
                                     <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">
                                         {user?.name || "User"}
@@ -86,7 +81,7 @@ export default function Navbar() {
                                         {userRole || "Guest"}
                                     </span>
                                 </div>
-                                
+
                                 <button
                                     onClick={handleLogout}
                                     className="px-4 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500 text-rose-600 hover:text-white transition font-semibold text-sm"
@@ -104,7 +99,6 @@ export default function Navbar() {
                         )}
                     </div>
 
-                    {/* Mobile Menu Action Buttons */}
                     <div className="flex md:hidden items-center gap-4">
                         <button
                             onClick={toggleTheme}
@@ -124,7 +118,6 @@ export default function Navbar() {
                 </div>
             </div>
 
-            {/* Mobile Dropdown Menu */}
             {isOpen && (
                 <div className="md:hidden bg-white dark:bg-[#090D16] border-b border-slate-200 dark:border-slate-800 px-4 pt-2 pb-6 flex flex-col gap-4 font-medium transition-colors duration-300">
                     <Link href="/" onClick={() => setIsOpen(false)} className="text-slate-600 dark:text-slate-300 py-1">Home</Link>
@@ -144,7 +137,6 @@ export default function Navbar() {
 
                     {user ? (
                         <div className="flex flex-col gap-3">
-                            {/* Mobile Profile Info */}
                             <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800">
                                 <div className="flex flex-col">
                                     <span className="text-sm font-bold text-slate-800 dark:text-slate-200">{user?.name}</span>

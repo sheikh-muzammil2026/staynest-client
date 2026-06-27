@@ -38,7 +38,6 @@ export default function FeaturedProperties() {
         };
     }, []);
 
-
     if (loading) {
         return (
             <section className="py-28 bg-white dark:bg-[#090D16] text-center">
@@ -47,7 +46,6 @@ export default function FeaturedProperties() {
         );
     }
 
-
     if (error) {
         return (
             <section className="py-28 bg-white dark:bg-[#090D16] text-center">
@@ -55,7 +53,6 @@ export default function FeaturedProperties() {
             </section>
         );
     }
-
 
     if (properties?.length === 0) {
         return (
@@ -68,7 +65,6 @@ export default function FeaturedProperties() {
     return (
         <section className="py-28 bg-white dark:bg-[#090D16] transition-colors duration-300">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-4">
                     <div>
                         <h2 className="text-3xl sm:text-4xl font-black text-slate-950 dark:text-white tracking-tight">Curated Living Spaces</h2>
@@ -83,7 +79,6 @@ export default function FeaturedProperties() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {properties?.map((item, i) => {
-                        {/* 💡 ইমেজ অ্যারে থেকে প্রথম ইমেজ নেওয়ার নিখুঁত সিস্টেম */}
                         const displayImage = item?.images && Array.isArray(item.images) && item.images.length > 0
                             ? item.images[0]
                             : "https://placehold.co/600x400.png?text=No+Image";
@@ -97,7 +92,6 @@ export default function FeaturedProperties() {
                                 transition={{ delay: i * 0.05 }}
                                 className="group relative bg-slate-50/50 dark:bg-[#131B2E]/40 rounded-3xl overflow-hidden border border-slate-200/60 dark:border-slate-800/70 p-3 hover:border-indigo-500/50 dark:hover:border-indigo-400/50 transition-all duration-300 shadow-sm"
                             >
-                                {/* Image */}
                                 <div className="relative h-64 rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-900">
                                     <Image
                                         fill
@@ -111,7 +105,6 @@ export default function FeaturedProperties() {
                                     </div>
                                 </div>
 
-                                {/* Content */}
                                 <div className="p-4">
                                     <h3 className="text-lg font-bold text-slate-950 dark:text-white group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition truncate">
                                         {item?.propertyTitle}
@@ -120,9 +113,8 @@ export default function FeaturedProperties() {
 
                                     <div className="mt-6 flex justify-between items-center bg-white dark:bg-[#131B2E] p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
                                         <div>
-                                            {/* 💡 কারেন্সি সাইন এবং টাইপ ডাইনামিক করা হলো */}
                                             <span className="text-lg font-black text-slate-950 dark:text-white">৳{item?.rent?.toLocaleString()}</span>
-                                            <span className="text-xs text-slate-400 font-medium">/{item?.rentType?.toLowerCase() || "monthly"}</span> 
+                                            <span className="text-xs text-slate-400 font-medium">/{item?.rentType?.toLowerCase() || "monthly"}</span>
                                         </div>
                                         <Link href={`/properties/${item._id}`}>
                                             <button className="px-3.5 py-2 bg-slate-950 dark:bg-indigo-600 text-white font-bold text-xs rounded-lg hover:opacity-90 transition">
@@ -138,4 +130,4 @@ export default function FeaturedProperties() {
             </div>
         </section>
     );
-    }
+}
