@@ -33,9 +33,9 @@ The main objective of StayNest is to streamline property hunting, booking, and p
 
 ## 🛠️ Technology Stack
 
-* **Frontend Framework:** Next.js 14/15 (App Router)
-* **Language:** JavaScript / TypeScript
-* **Styling:** Tailwind CSS & Lucide React (Icons)
+* **Frontend Framework:** Next.js (App Router)
+* **Language:** JavaScript
+* **Styling:** Tailwind CSS & Lucide React (Icons), Hero UI
 * **Data Visualization:** Recharts (Responsive Line Charts)
 * **Authentication:** Custom Session Client with Bearer Token Architecture
 * **State Management:** React Reactivity Hooks (`useState`, `useEffect`)
@@ -48,8 +48,8 @@ Follow these step-by-step instructions to set up the development environment on 
 
 ### 1. Clone the Repository
 ```bash
-git clone [https://github.com/your-username/staynest.git](https://github.com/your-username/staynest.git)
-cd staynest
+git clone https://github.com/sheikh-muzammil2026/staynest-client.git
+cd staynest-client
 
 ```
 ### 2. Install Dependencies
@@ -73,20 +73,6 @@ yarn dev
 
 ```
 Open http://localhost:3000 in your web browser to explore the platform.
-## 📂 Architecture & Key Component Mapping
-```text
-├── app/
-│   ├── admin/
-│   │   └── page.tsx--------- # AdminHome (Central Command Dashboard & Recharts implementation)
-│   └── property/[id]/
-│       └── page.tsx--------- # PropertyDetails Page (Individual asset layouts)
-├── components/
-│   └── ReviewSection.tsx---- # Role-based Review Form & Feedback Feed
-├── lib/
-│   ├── api/
-│   │   └── reviews.ts------- # API Handlers (getReviews, submitReview connectors)
-│   └── auth-client.ts------- # Session verification & Token extractor engine
-└── public/
 
 ```
 ## 🔒 Security & Data Validation Guidelines
