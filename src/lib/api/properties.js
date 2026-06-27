@@ -157,7 +157,7 @@ export const deletePropertyById = async (id) => {
 // প্রপার্টি আপডেট করার এপিআই কল
 export const updatePropertyById = async (id, propertyData) => {
     const res = await fetch(`${BASE_URL}/properties/owner/${id}`, {
-        method: 'PUT',
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(propertyData)
     });
