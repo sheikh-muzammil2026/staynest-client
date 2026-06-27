@@ -5,55 +5,64 @@ import { authClient } from "@/lib/auth-client";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
+import { Loader2 } from "lucide-react";
+
+/**
+ * @typedef {Object} LoginFormData
+ * @property {string} email
+ * @property {string} password
+ */
 
 export default function LoginPage() {
     const router = useRouter();
     const [showPassword, setShowPassword] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    /**
-     * Handles traditional email and password authentication
-     */
-    const handleOnSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleOnSubmit = async (e) => {
         e.preventDefault();
+        if (isSubmitting) return;
 
         const formData = new FormData(e.currentTarget);
         const loggedData = Object.fromEntries(formData.entries());
         
         try {
+            setIsSubmitting(true);
+            
             const { data, error } = await authClient.signIn.email({
-                email: loggedData.email as string,
-                password: loggedData.password as string
+                email: loggedData.email,
+                password: loggedData.password
             });
 
             if (data && !error) {
-                alert("Login successful");
+                toast.success("Welcome back! Login successful.");
                 router.push('/');
             }
             if (error) {
-                alert(error.message || "Authentication failed. Please try again.");
+                toast.error(error.message || "Invalid credentials. Please try again.");
             }
         } catch (err) {
-            console.error("Authentication error:", err);
-            alert("An unexpected error occurred.");
+            console.error("Authentication lifecycle crash:", err);
+            toast.error("An unexpected error occurred during sign-in.");
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
-    /**
-     * Handles OAuth authentication via Google
-     */
     const handleGoogleLogin = async () => {
         try {
             await authClient.signIn.social({
                 provider: "google",
+                callbackURL: "/",
             });
         } catch (err) {
-            console.error("Google login error:", err);
+            console.error("OAuth flow provider error:", err);
+            toast.error("Google authentication failed.");
         }
     };
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC] dark:bg-[#090D16] px-4 py-24 transition-colors duration-300 relative overflow-hidden">
-            {/* Ambient Background Glows */}
             <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-indigo-500/10 dark:bg-indigo-500/20 rounded-full blur-[100px] pointer-events-none" />
             <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-sky-500/10 dark:bg-sky-500/20 rounded-full blur-[100px] pointer-events-none" />
 
@@ -62,7 +71,6 @@ export default function LoginPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="w-full max-w-md bg-white/80 dark:bg-[#131B2E]/50 backdrop-blur-xl p-8 rounded-3xl border border-slate-200/60 dark:border-slate-800/80 shadow-xl shadow-slate-100 dark:shadow-none"
             >
-                {/* Brand Logo & Header */}
                 <div className="text-center mb-8">
                     <Link href="/" className="inline-flex items-center gap-2 mb-4 cursor-pointer">
                         <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-600 to-sky-400 flex items-center justify-center text-white font-black">
@@ -74,7 +82,6 @@ export default function LoginPage() {
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Enter your credentials to access your dashboard</p>
                 </div>
 
-                {/* Login Form */}
                 <form onSubmit={handleOnSubmit} className="space-y-5">
                     <div>
                         <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-1.5">Email Address</label>
@@ -121,19 +128,22 @@ export default function LoginPage() {
                         </div>
                     </div>
 
-                    <button type="submit" className="w-full py-3.5 bg-indigo-600 text-white font-bold text-sm rounded-xl hover:bg-indigo-500 transition shadow-lg shadow-indigo-500/20 cursor-pointer">
-                        Sign In with Password
+                    <button 
+                        type="submit" 
+                        disabled={isSubmitting}
+                        className="w-full py-3.5 bg-indigo-600 text-white font-bold text-sm rounded-xl hover:bg-indigo-500 transition shadow-lg shadow-indigo-500/20 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                        {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
+                        {isSubmitting ? "Signing In..." : "Sign In with Password"}
                     </button>
                 </form>
 
-                {/* Divider */}
                 <div className="relative flex py-5 items-center">
                     <div className="flex-grow border-t border-slate-200 dark:border-slate-800" />
                     <span className="flex-shrink mx-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Or continue with</span>
                     <div className="flex-grow border-t border-slate-200 dark:border-slate-800" />
                 </div>
 
-                {/* Social Login Button */}
                 <button
                     onClick={handleGoogleLogin}
                     type="button"
@@ -145,7 +155,6 @@ export default function LoginPage() {
                     Google (Sign in as Tenant)
                 </button>
 
-                {/* Registration Redirect */}
                 <p className="text-center text-xs text-slate-500 dark:text-slate-400 mt-6">
                     Do not have an account? <Link href="/auth/register" className="text-indigo-500 font-semibold hover:underline cursor-pointer">Create an account</Link>
                 </p>
