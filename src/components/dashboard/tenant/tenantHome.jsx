@@ -17,7 +17,7 @@ export default function TenantHome({ setActiveTab }) {
         if (!userEmail) return;
 
         // ব্যাকেন্ড থেকে ডায়নামিক ডেটা ফেচ করা
-        fetch(`http://localhost:8000/tenant/analytics?email=${userEmail}`)
+        fetch(`${process.env.NEXT_PUBLIC_SERVER_URI}/tenant/analytics?email=${userEmail}`)
             .then((res) => res.json())
             .then((data) => {
                 if (data.success) {
