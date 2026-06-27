@@ -79,7 +79,8 @@ export default function TenantHome({ setActiveTab }) {
         },
     ];
 
-    const recentActivities = analytics?.recentActivities || [];
+    // Array.isArray দিয়ে নিশ্চিত হওয়া যে এটি একটি অ্যারে
+    const recentActivities = Array.isArray(analytics?.recentActivities) ? analytics.recentActivities : [];
 
     return (
         <div className="space-y-10">
@@ -132,21 +133,26 @@ export default function TenantHome({ setActiveTab }) {
                         Recent Activities
                     </h3>
                     <div className="bg-white/80 dark:bg-[#131B2E]/30 backdrop-blur-md border border-slate-200/60 dark:border-slate-800/70 rounded-3xl p-6 shadow-sm divide-y divide-slate-100 dark:divide-slate-800/50">
-                        {recentActivities.map((activity) => (
-                            <div key={activity.id} className="py-4 first:pt-0 last:pb-0 flex items-start justify-between gap-4 text-xs">
-                                <div className="flex gap-3 items-start">
-                                    <span className="text-base mt-0.5">
-                                        {activity.type === "booking" ? "✅" : activity.type === "payment" ? "💳" : "🎉"}
+                        {recentActivities.length > 0 ? (
+                            recentActivities.map((activity, idx) => (
+                                // key হিসেবে activity.id না থাকলে fallback হিসেবে idx ব্যবহার করা হয়েছে
+                                <div key={activity.id || idx} className="py-4 first:pt-0 last:pb-0 flex items-start justify-between gap-4 text-xs">
+                                    <div className="flex gap-3 items-start">
+                                        <span className="text-base mt-0.5">
+                                            {activity.type === "booking" ? "✅" : activity.type === "payment" ? "💳" : "🎉"}
+                                        </span>
+                                        <p className="font-semibold text-slate-700 dark:text-slate-300 leading-relaxed">
+                                            {activity.text}
+                                        </p>
+                                    </div>
+                                    <span className="text-[10px] font-medium text-slate-400 whitespace-nowrap">
+                                        {activity.time}
                                     </span>
-                                    <p className="font-semibold text-slate-700 dark:text-slate-300 leading-relaxed">
-                                        {activity.text}
-                                    </p>
                                 </div>
-                                <span className="text-[10px] font-medium text-slate-400 whitespace-nowrap">
-                                    {activity.time}
-                                </span>
-                            </div>
-                        ))}
+                            ))
+                        ) : (
+                            <p className="text-xs text-slate-400 text-center py-4">No recent activities found.</p>
+                        )}
                     </div>
                 </div>
 
