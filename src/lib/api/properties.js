@@ -3,15 +3,28 @@ import { authClient } from "../auth-client";
 const BASE_URL = process.env.NEXT_PUBLIC_SERVER_URI || 'http://localhost:8000';
 
 /**
- * 📊 Fetch all properties for admin tracking
+ * Helper function to get authorization headers securely
+ */
+const getAuthHeaders = async (customHeaders = {}) => {
+    const { data: token } = await authClient.token();
+    return {
+        'Content-Type': 'application/json',
+        ...(token?.token ? { 'Authorization': `Bearer ${token.token}` } : {}),
+        ...customHeaders
+    };
+};
+
+/**
+ * 📊 Fetch all properties for admin tracking (Protected)
  */
 export const trackAllProperties = async () => {
-    const res = await fetch(`${BASE_URL}/admin/properties`);
+    const headers = await getAuthHeaders();
+    const res = await fetch(`${BASE_URL}/admin/properties`, { headers });
     return await res.json();
 };
 
 /**
- * 🔍 Fetch paginated properties with filter and search options
+ * 🔍 Fetch paginated properties with filter and search options (Public)
  */
 export const getAllProperties = async (search = "", type = "all", sort = "", page = 1, limit = 9) => {
     try {
@@ -34,7 +47,7 @@ export const getAllProperties = async (search = "", type = "all", sort = "", pag
 };
 
 /**
- * ⭐ Fetch hand-vetted featured properties
+ * ⭐ Fetch hand-vetted featured properties (Public)
  */
 export const getFeaturedProperties = async () => {
     try {
@@ -49,7 +62,7 @@ export const getFeaturedProperties = async () => {
 };
 
 /**
- * 🏠 Fetch single property details by ID
+ * 🏠 Fetch single property details by ID (Public)
  */
 export const PropertyDetailsById = async (id) => {
     const res = await fetch(`${BASE_URL}/properties/${id}`);
@@ -57,17 +70,14 @@ export const PropertyDetailsById = async (id) => {
 };
 
 /**
- * ➕ Add a new property listing (Owner Only)
+ * ➕ Add a new property listing (Owner Only - Protected)
  */
 export const addProperty = async (propertyData) => {
-    const { data: token } = await authClient.token();
+    const headers = await getAuthHeaders();
     
     const response = await fetch(`${BASE_URL}/properties/owner`, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            authorization: `Bearer: ${token?.token}`
-        },
+        headers,
         body: JSON.stringify(propertyData),
     });
 
@@ -77,22 +87,24 @@ export const addProperty = async (propertyData) => {
 };
 
 /**
- * 🏢 Fetch all properties belonging to a specific owner
+ * 🏢 Fetch all properties belonging to a specific owner (Protected)
  */
 export const getOwnerProperties = async (email) => {
-    const response = await fetch(`${BASE_URL}/properties/owner/${email}`);
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${BASE_URL}/properties/owner/${email}`, { headers });
     const data = await response.json();
     if (!response.ok) throw new Error(data.message || 'Failed to fetch owner properties');
     return data;
 };
 
 /**
- * 🔄 Update property details by ID (Owner Only)
+ * 🔄 Update property details by ID (Owner Only - Protected)
  */
 export const updatePropertyById = async (id, propertyData) => {
+    const headers = await getAuthHeaders();
     const res = await fetch(`${BASE_URL}/properties/owner/${id}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify(propertyData)
     });
     const data = await res.json();
@@ -101,12 +113,13 @@ export const updatePropertyById = async (id, propertyData) => {
 };
 
 /**
- * 🗑️ Delete property by ID (Owner Only)
+ * 🗑️ Delete property by ID (Owner Only - Protected)
  */
 export const deletePropertyByIdWithOwner = async (id) => {
+    const headers = await getAuthHeaders();
     const res = await fetch(`${BASE_URL}/properties/owner/${id}`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' }
+        headers
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || "Failed to delete property");
@@ -114,25 +127,27 @@ export const deletePropertyByIdWithOwner = async (id) => {
 };
 
 /**
- * 👑 Update verification status or add feedback (Admin Only)
+ * 👑 Update verification status or add feedback (Admin Only - Protected)
  */
 export const updatePropertyStatus = async (id, newStatus, feedback = '') => {
+    const headers = await getAuthHeaders();
     const res = await fetch(`${BASE_URL}/properties/admin?newStatus=${newStatus}&feedback=${encodeURIComponent(feedback)}`, {
         method: 'PATCH',
-        headers: { 'content-type': 'application/json' },
+        headers,
         body: JSON.stringify({ id })
     });
     return await res.json();
 };
 
 /**
- * 🛑 Hard delete property from platform (Admin Only)
+ * 🛑 Hard delete property from platform (Admin Only - Protected)
  */
 export const deletePropertyById = async (id) => {
     try {
+        const headers = await getAuthHeaders();
         const res = await fetch(`${BASE_URL}/properties/admin`, {
             method: 'DELETE',
-            headers: { 'content-type': 'application/json' },
+            headers,
             body: JSON.stringify({ id })
         });
 
