@@ -2,21 +2,22 @@
 
 import React, { useEffect, useState } from 'react';
 import { User, MapPin, Check, X, Loader2 } from 'lucide-react';
-import { getOwnerBookings } from '@/lib/api/booking';
+// 💡 updateBookingStatus ইমপোর্ট করা হয়েছে
+import { getOwnerBookings, updateBookingStatus } from '@/lib/api/booking'; 
 import { authClient } from '@/lib/auth-client';
 
 export default function BookingRequests() {
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [actionLoadingId, setActionLoadingId] = useState(null); // নির্দিষ্ট বাটনে লোডার দেখানোর জন্য
 
-    // Track authentication session state cleanly
     const { data: session, isPending: isSessionLoading } = authClient.useSession();
     const user = session?.user;
     const userEmail = user?.email;
 
     const isPageLoading = loading || isSessionLoading;
 
-    // Fetch booking requests for the logged-in owner
+    // Fetch booking requests
     useEffect(() => {
         if (!userEmail || isSessionLoading) return;
 
@@ -35,19 +36,33 @@ export default function BookingRequests() {
         fetchBookings();
     }, [userEmail, isSessionLoading]);
 
-    // Handle local state updates for Approve/Reject requests
-    const handleAction = (id, actionType) => {
-        setBookings(prev =>
-            prev.map(b => b._id === id ? { ...b, status: actionType } : b)
-        );
+    // 💡 ডাটাবেজে স্টেটাস আপডেট হ্যান্ডলার
+    const handleAction = async (id, actionType) => {
+        try {
+            setActionLoadingId(id); // লোডিং শুরু
+            
+            // ডাটাবেজ আপডেট করার জন্য এপিআই কল
+            const response = await updateBookingStatus(id, actionType);
+            
+            if (response.success) {
+                // ডাটাবেজে সফল হলে লোকাল স্টেট আপডেট হবে
+                setBookings(prev =>
+                    prev.map(b => b._id === id ? { ...b, status: actionType } : b)
+                );
+            }
+        } catch (error) {
+            console.error(`Failed to ${actionType} booking:`, error);
+            alert("Something went wrong! Please try again.");
+        } finally {
+            setActionLoadingId(null); // লোডিং শেষ
+        }
     };
 
     return (
         <div className="p-4 md:p-8">
-            {/* Header section */}
             <h2 className="text-xl md:text-2xl font-bold mb-6 text-slate-900 dark:text-white">Booking Requests</h2>
 
-            {/* Loading State UI */}
+            {/* Loading State */}
             {isPageLoading && (
                 <div className="flex flex-col items-center justify-center p-16 text-slate-500 bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm">
                     <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
@@ -55,14 +70,14 @@ export default function BookingRequests() {
                 </div>
             )}
 
-            {/* Empty State UI */}
+            {/* Empty State */}
             {!isPageLoading && bookings.length === 0 && (
                 <div className="text-center p-16 text-slate-400 text-sm bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm">
                     No new booking requests found.
                 </div>
             )}
 
-            {/* Booking Requests List */}
+            {/* Bookings List */}
             {!isPageLoading && bookings.length > 0 && (
                 <div className="grid gap-4">
                     {bookings.map((booking) => (
@@ -70,7 +85,6 @@ export default function BookingRequests() {
                             key={booking._id} 
                             className="p-5 md:p-6 bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-all hover:shadow-sm"
                         >
-                            {/* Tenant and Property Information */}
                             <div className="flex items-center gap-4 w-full md:w-auto">
                                 <div className="p-3 bg-slate-100 dark:bg-slate-900 rounded-full text-slate-500 shrink-0">
                                     <User size={18} />
@@ -86,19 +100,22 @@ export default function BookingRequests() {
                                 </div>
                             </div>
 
-                            {/* Price and Date info */}
                             <div className="flex flex-row md:flex-col justify-between items-center md:items-end w-full md:w-auto pt-2 md:pt-0 border-t md:border-t-0 border-slate-100 dark:border-slate-700/50">
                                 <span className="text-base md:text-xl font-black text-emerald-600 dark:text-emerald-400">
-                                    {booking.rent}
+                                    ৳{booking.rent}
                                 </span>
                                 <span className="text-[10px] md:text-xs text-slate-400 uppercase tracking-widest block mt-0.5">
                                     {booking.moveInDate}
                                 </span>
                             </div>
 
-                            {/* Clean & Balanced Action Buttons / Status Badges */}
-                            <div className="flex gap-2 w-full md:w-auto pt-1 md:pt-0">
-                                {booking.status === 'Pending' ? (
+                            {/* Action Buttons */}
+                            <div className="flex gap-2 w-full md:w-auto pt-1 md:pt-0 min-w-[150px] justify-end">
+                                {actionLoadingId === booking._id ? (
+                                    <div className="flex items-center justify-center w-full py-2">
+                                        <Loader2 className="h-5 w-5 animate-spin text-slate-500" />
+                                    </div>
+                                ) : booking.status === 'Pending' ? (
                                     <>
                                         <button
                                             onClick={() => handleAction(booking._id, 'Approved')}
