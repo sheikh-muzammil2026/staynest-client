@@ -140,3 +140,27 @@ export const deletePropertyById = async (id) => {
         throw error;
     }
 };
+
+
+          const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
+// প্রপার্টি ডিলিট করার এপিআই কল
+export const deletePropertyById = async (id) => {
+    const res = await fetch(`${BASE_URL}/properties/owner/${id}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+    });
+    if (!res.ok) throw new Error("Failed to delete property");
+    return res.json();
+};
+
+// প্রপার্টি আপডেট করার এপিআই কল
+export const updatePropertyById = async (id, propertyData) => {
+    const res = await fetch(`${BASE_URL}/properties/owner/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(propertyData)
+    });
+    if (!res.ok) throw new Error("Failed to update property");
+    return res.json();
+};
