@@ -2,14 +2,14 @@
 
 import React, { useEffect, useState } from 'react';
 import { User, MapPin, Check, X, Loader2 } from 'lucide-react';
-// 💡 updateBookingStatus ইমপোর্ট করা হয়েছে
+
 import { getOwnerBookings, updateBookingStatus } from '@/lib/api/booking'; 
 import { authClient } from '@/lib/auth-client';
 
 export default function BookingRequests() {
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [actionLoadingId, setActionLoadingId] = useState(null); // নির্দিষ্ট বাটনে লোডার দেখানোর জন্য
+    const [actionLoadingId, setActionLoadingId] = useState(null); 
 
     const { data: session, isPending: isSessionLoading } = authClient.useSession();
     const user = session?.user;
