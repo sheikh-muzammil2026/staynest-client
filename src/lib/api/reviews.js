@@ -36,13 +36,20 @@ export const submitReview = async (newReview) => {
     }
 };
 
+
 /**
- * 📋 Fetch all reviews (Public / Protected depending on backend)
+ * 📋 Fetch reviews for a specific property (Public / Protected depending on backend)
  */
-export const getReviews = async () => {
+export const getReviews = async (propertyId) => {
     try {
+        if (!propertyId) {
+            console.error("propertyId is missing in getReviews call");
+            return [];
+        }
+
         const headers = await getAuthHeaders();
-        const res = await fetch(`${SERVER_URI}/reviews`, { headers });
+
+        const res = await fetch(`${SERVER_URI}/reviews/${propertyId}`, { headers });
 
         if (!res.ok) throw new Error("Failed to fetch reviews");
 

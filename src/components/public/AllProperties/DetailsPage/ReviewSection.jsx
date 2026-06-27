@@ -1,45 +1,46 @@
 "use client";
-import { getReviws, submitReview } from "@/lib/api/reviews";
+import { getReviews, submitReview } from "@/lib/api/reviews";
 import React, { useEffect, useState } from "react";
 
 export default function ReviewSection({ propertyId, currentUser }) {
     const [rating, setRating] = useState(5);
     const [comment, setComment] = useState("");
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(false);
     const [reviews, setReviews] = useState([]);
-
 
     useEffect(() => {
         const fetchReviews = async () => {
-            setLoading(true)
-            const data = await getReviws()
-            setReviews(data)
-            setLoading(false)
-        }
-        fetchReviews()
-    }, [])
+            if (!propertyId) return;
+            setLoading(true);
+            const data = await getReviews(propertyId);
+            setReviews(data);
+            setLoading(false);
+        };
+        fetchReviews();
+    }, [propertyId]);
 
     const handleReviewSubmit = async (e) => {
         e.preventDefault();
         if (!comment.trim()) return;
 
-
         const newReview = {
-            name: currentUser.name,
-            email: currentUser.email,
+            propertyId: propertyId,
+            name: currentUser?.name || "Anonymous",
+            email: currentUser?.email || "",
             date: new Date().toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' }),
             rating: Number(rating),
             comment: comment
         };
 
         const result = await submitReview(newReview);
-        if (result) {
+        if (result && !result.error) {
             setReviews([newReview, ...reviews]);
             setComment("");
             setRating(5);
             alert("Review submitted successfully!");
+        } else {
+            alert("Failed to submit review. Please try again.");
         }
-
     };
 
     return (
@@ -76,29 +77,39 @@ export default function ReviewSection({ propertyId, currentUser }) {
                     />
                 </div>
 
-                <button type="submit" className="px-5 py-2.5 bg-slate-950 dark:bg-indigo-600 text-white font-bold text-xs rounded-xl hover:opacity-90 transition">
-                    Submit Review
+                <button
+                    type="submit"
+                    disabled={loading}
+                    className="px-5 py-2.5 bg-slate-950 dark:bg-indigo-600 text-white font-bold text-xs rounded-xl hover:opacity-90 transition disabled:opacity-50"
+                >
+                    {loading ? "Submitting..." : "Submit Review"}
                 </button>
             </form>
 
             {/* Display Reviews List */}
             <div className="space-y-4 divide-y divide-slate-100 dark:divide-slate-800/60">
-                {reviews.map((rev, index) => (
-                    <div key={index} className={`pt-4 ${index === 0 ? "pt-0" : ""}`}>
-                        <div className="flex justify-between items-start gap-4">
-                            <div>
-                                <h4 className="font-bold text-sm text-slate-900 dark:text-white">{rev.name}</h4>
-                                <p className="text-[10px] text-slate-400">{rev.email} • {rev.date}</p>
+                {loading && reviews.length === 0 ? (
+                    <p className="text-xs text-slate-400 text-center py-4">Loading reviews...</p>
+                ) : reviews.length === 0 ? (
+                    <p className="text-xs text-slate-400 text-center py-4">No reviews yet. Be the first to review!</p>
+                ) : (
+                    reviews.map((rev, index) => (
+                        <div key={index} className={`pt-4 ${index === 0 ? "pt-0" : ""}`}>
+                            <div className="flex justify-between items-start gap-4">
+                                <div>
+                                    <h4 className="font-bold text-sm text-slate-900 dark:text-white">{rev.name}</h4>
+                                    <p className="text-[10px] text-slate-400">{rev.email} • {rev.date}</p>
+                                </div>
+                                <div className="text-amber-500 text-xs">
+                                    {"⭐".repeat(rev.rating)}
+                                </div>
                             </div>
-                            <div className="text-amber-500 text-xs">
-                                {"⭐".repeat(rev.rating)}
-                            </div>
+                            <p className="mt-2 text-xs text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
+                                {rev.comment}
+                            </p>
                         </div>
-                        <p className="mt-2 text-xs text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
-                            {rev.comment}
-                        </p>
-                    </div>
-                ))}
+                    ))
+                )}
             </div>
         </div>
     );
