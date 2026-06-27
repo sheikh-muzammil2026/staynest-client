@@ -3,6 +3,7 @@ export const dashboardConfig = {
         title: "Tenant Hub",
         logoText: "TN",
         routes: [
+            { label: "📊 Dashboard Overview", path: "/dashboard/tenant" },
             { label: "📋 My Bookings", path: "/dashboard/tenant/bookings" },
             { label: "❤️ Favorites", path: "/dashboard/tenant/favorites" },
             { label: "👤 Profile Settings", path: "/dashboard/tenant/profile" },
@@ -12,6 +13,7 @@ export const dashboardConfig = {
         title: "Owner Portal",
         logoText: "OW",
         routes: [
+            { label: "📊 Dashboard Overview", path: "/dashboard/owner" },
             { label: "🏠 My Properties", path: "/dashboard/owner/my-properties" },
             { label: "➕ Add Property", path: "/dashboard/owner/add-property" },
             { label: "💰 Rental Requests", path: "/dashboard/owner/booking-requests" },
