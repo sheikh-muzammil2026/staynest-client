@@ -1,40 +1,103 @@
 "use client";
+
+import React from "react";
 import { motion } from "framer-motion";
+import { ShieldCheck, Clock, Coins, Headphones } from "lucide-react";
 
-export default function TopLocations() {
-    const locations = [
-        { name: "Manhattan Lofts", counts: "42 Properties", img: "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&w=400&q=80" },
-        { name: "Malibu Beachfront", counts: "28 Properties", img: "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=400&q=80" },
-        { name: "Miami Penthouses", counts: "19 Properties", img: "https://images.unsplash.com/photo-1514565131-fce0801e5785?auto=format&fit=crop&w=400&q=80" },
-        { name: "Silicon Studios", counts: "35 Properties", img: "https://images.unsplash.com/photo-1506012787146-f92b2d7d6d96?auto=format&fit=crop&w=400&q=80" }
-    ];
+export default function WhyChooseUs() {
+  const benefits = [
+    {
+      id: 1,
+      icon: <ShieldCheck className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />,
+      title: "Secure Marketplace",
+      description: "Verified property listings with secure JWT authorization and trusted role-based identity checks.",
+    },
+    {
+      id: 2,
+      icon: <Clock className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />,
+      title: "Instant Booking",
+      description: "Seamless move-in scheduling and instantaneous booking response directly from verified owners.",
+    },
+    {
+      id: 3,
+      icon: <Coins className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />,
+      title: "Transparent Pricing",
+      description: "No hidden charges. Secure integration with Stripe gateway ensures transparent transaction fees.",
+    },
+    {
+      id: 4,
+      icon: <Headphones className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />,
+      title: "24/7 Priority Support",
+      description: "Our dedicated moderation and support team is always ready to assist tenants and property owners.",
+    },
+  ];
 
-    return (
-        <section className="py-24 bg-white dark:bg-[#090D16] transition-colors duration-300">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="mb-12">
-                    <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">Neighborhoods</span>
-                    <h2 className="text-3xl font-black text-slate-950 dark:text-white tracking-tight mt-1">Explore Top Districts</h2>
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.15,
+      },
+    },
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { type: "spring", stiffness: 100, damping: 16 },
+    },
+  };
+
+  return (
+    <section className="py-20 bg-[#F8FAFC] dark:bg-[#090D16] text-slate-950 dark:text-white transition-colors duration-300 overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div className="text-center mb-16">
+          <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest block mb-2">
+            Core Benefits
+          </span>
+          <h2 className="text-3xl md:text-4xl font-black tracking-tight">
+            Why Choose StayNest
+          </h2>
+          <p className="mt-3 text-sm text-slate-500 dark:text-slate-400 max-w-xl mx-auto">
+            Discover how we are redefining the rental ecosystem with transparency, security, and cutting-edge automation.
+          </p>
+        </div>
+
+        <motion.div 
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+        >
+          {benefits.map((benefit) => (
+            <motion.div
+              key={benefit.id}
+              variants={cardVariants}
+              whileHover={{ y: -6, transition: { duration: 0.2 } }}
+              className="bg-white dark:bg-[#131B2E]/40 border border-slate-200/60 dark:border-slate-800/70 p-8 rounded-3xl shadow-sm hover:border-indigo-500/40 transition-colors duration-300 flex flex-col items-center sm:items-start text-center sm:text-left group"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/50 flex items-center justify-center mb-5 group-hover:bg-indigo-600 dark:group-hover:bg-indigo-500 transition-colors duration-300">
+                <div className="group-hover:text-white transition-colors duration-300">
+                  {benefit.icon}
                 </div>
+              </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    {locations.map((loc, idx) => (
-                        <motion.div
-                            key={idx}
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            whileInView={{ opacity: 1, scale: 1 }}
-                            viewport={{ once: true }}
-                            className="relative rounded-2xl overflow-hidden h-72 group cursor-pointer border border-slate-100 dark:border-slate-900"
-                        >
-                            <img src={loc.img} alt={loc.name} className="w-full h-full object-cover group-hover:scale-110 transition duration-700" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent p-5 flex flex-col justify-end">
-                                <h3 className="text-base font-bold text-white tracking-tight">{loc.name}</h3>
-                                <p className="text-[10px] text-slate-300 font-medium tracking-wide mt-0.5">{loc.counts}</p>
-                            </div>
-                        </motion.div>
-                    ))}
-                </div>
-            </div>
-        </section>
-    );
-}
+              <h3 className="font-bold text-lg text-slate-950 dark:text-white mb-2">
+                {benefit.title}
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                {benefit.description}
+              </p>
+            </motion.div>
+          ))}
+        </motion.div>
+
+      </div>
+    </section>
+  );
+            }
