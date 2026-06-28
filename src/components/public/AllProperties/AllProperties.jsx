@@ -1,19 +1,31 @@
 "use client";
-import { useState, useEffect } from "react";
+
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { Card, Input, Button } from "@heroui/react";
 import Image from "next/image";
 import Link from "next/link";
 import { getAllProperties } from "@/lib/api/properties";
 
-export default function AllProperties() {
+function AllPropertiesContent() {
+    const searchParams = useSearchParams();
+
     const [properties, setProperties] = useState([]);
-    const [search, setSearch] = useState("");
-    const [type, setType] = useState("all");
+    const [search, setSearch] = useState(searchParams.get("location") || "");
+    const [type, setType] = useState(searchParams.get("type") || "all");
     const [sort, setSort] = useState("");
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+
+    useEffect(() => {
+        const locationParam = searchParams.get("location") || "";
+        const typeParam = searchParams.get("type") || "all";
+        
+        setSearch(locationParam);
+        setType(typeParam);
+    }, [searchParams]);
 
     useEffect(() => {
         setPage(1);
@@ -196,5 +208,14 @@ export default function AllProperties() {
                 )}
             </div>
         </div>
+    );
+}
+
+// Next.js App Router-এ useSearchParams ব্যবহারের জন্য Suspense বাউন্ডারি আবশ্যক (Build Error এড়াতে)
+export default function AllProperties() {
+    return (
+        <Suspense fallback={<div className="text-center py-20 text-slate-500">Loading component structure...</div>}>
+            <AllPropertiesContent />
+        </Suspense>
     );
 }
