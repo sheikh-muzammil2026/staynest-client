@@ -1,5 +1,9 @@
 import Link from 'next/link';
 
+export const metadata = {
+    title: "Access Denied",
+    description: "You do not have permission to view this page.",
+};
 export default function UnauthorizedPage() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 sm:px-6 lg:px-8">

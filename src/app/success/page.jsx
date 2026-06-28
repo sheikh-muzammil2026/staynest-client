@@ -3,6 +3,12 @@ import { stripe } from '@/lib/stripe'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 
+
+export const metadata = {
+    title: "Payment Successful",
+    description: "Thank you for your payment! Your booking is confirmed.",
+};
+
 export default async function Success({ searchParams }) {
     const { session_id, booking_id } = await searchParams
 
