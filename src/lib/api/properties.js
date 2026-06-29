@@ -158,3 +158,16 @@ export const deletePropertyById = async (id) => {
         throw error;
     }
 };
+
+export const updatePropertyDetails = async (id, payload) => {
+    const headers = await getAuthHeaders();
+    const res = await fetch(`${BASE_URL}/properties/owner/${id}`, {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Failed to update property");
+    return data;
+};
+            
