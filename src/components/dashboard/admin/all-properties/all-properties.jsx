@@ -94,7 +94,7 @@ export default function AllProperties() {
             });
 
             if (result.acknowledged || result.modifiedCount > 0) {
-                setProperties(prev => prev.map(p => p._id === editForm.id 
+                setProperties(prev => prev.map(p => p._id === editForm._id 
                     ? { ...p, propertyTitle: editForm.title, location: editForm.location, rent: Number(editForm.rent) } 
                     : p
                 ));
