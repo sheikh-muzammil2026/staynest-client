@@ -53,16 +53,23 @@ The main objective of StayNest is to streamline property hunting, booking, and p
 * **High-Fidelity UI:** Completely responsive design scaling smoothly from mobile screens (`xs`, `sm`) up to ultra-wide desktop monitors.
 
 ---
+🛠️ Tech Stack & Packages
 
-## 🛠️ Technology Stack
+### Frontend (Next.js)
+- **Core:** Next.js, React 19 (App Router)
+- **UI Framework:** [HeroUI](https://www.heroui.com/)
+- **Animations:** [Framer Motion](https://www.framer.com/motion/)
+- **Icons:** [Lucide React](https://lucide.dev/)
+- **Charts:** [Recharts](https://recharts.org/)
+- **Notifications:** [React Toastify](https://fkhadra.github.io/react-toastify/)
+- **Authentication:** [Better Auth](https://www.better-auth.com/)
+- **Payments:** [Stripe](https://stripe.com/)
 
-* **Frontend Framework:** Next.js (App Router)
-* **Language:** JavaScript
-* **Styling:** Tailwind CSS & Lucide React (Icons), Hero UI
-* **Data Visualization:** Recharts (Responsive Line Charts)
-* **Authentication:** Custom Session Client with Bearer Token Architecture
-* **State Management:** React Reactivity Hooks (`useState`, `useEffect`)
-
+### Backend (Node.js/Express)
+- **Framework:** Express.js
+- **Database:** MongoDB (Official Driver)
+- **Validation/Security:** `jose-cjs`, `cors`, `dotenv`
+- **Development:** `nodemon`
 ---
 
 ## 📦 Installation & Local Setup
