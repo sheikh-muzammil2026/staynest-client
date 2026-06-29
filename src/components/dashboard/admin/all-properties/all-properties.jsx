@@ -37,7 +37,7 @@ export default function AllProperties() {
     const [propertyToDelete, setPropertyToDelete] = useState(null);
 
     const [editModalOpen, setEditModalOpen] = useState(false);
-    const [editForm, setEditForm] = useState({ id: '', title: '', location: '', rent: '' });
+    const [editForm, setEditForm] = useState({ _id: '', title: '', location: '', rent: '' });
 
     /**
      * Synchronizes and synchronically fetches all master property records on mount.
@@ -87,7 +87,7 @@ export default function AllProperties() {
         }
 
         try {
-            const result = await updatePropertyDetails(editForm.id, {
+            const result = await updatePropertyDetails(editForm._id, {
                 propertyTitle: editForm.title,
                 location: editForm.location,
                 rent: Number(editForm.rent)
