@@ -161,7 +161,7 @@ export const deletePropertyById = async (id) => {
 
 export const updatePropertyDetails = async (id, payload) => {
     const headers = await getAuthHeaders();
-    const res = await fetch(`${BASE_URL}/properties/owner/${id}`, {
+    const res = await fetch(`${BASE_URL}/api/properties/admin/${id}`, {
         method: 'PATCH',
         headers,
         body: JSON.stringify(payload)
