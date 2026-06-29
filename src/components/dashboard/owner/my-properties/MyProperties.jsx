@@ -45,7 +45,7 @@ export default function MyProperties() {
                 setProperties(Array.isArray(data) ? data : data ? [data] : []);
             } catch (error) {
                 console.error("Error fetching properties:", error);
-                toast.error("Failed to load properties");
+               
             } finally {
                 setLoading(false);
             }
