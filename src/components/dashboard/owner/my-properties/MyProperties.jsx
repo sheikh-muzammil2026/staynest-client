@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { Edit, Trash2, CheckCircle, Clock, XCircle, Loader2, Eye, MessageSquare } from 'lucide-react';
+import { Edit, Trash2, CheckCircle, Clock, XCircle, Loader2, Eye, MessageSquare, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth-client';
-import { getOwnerProperties, deletePropertyByIdWithOwner } from '@/lib/api/properties';
+import { getOwnerProperties, deletePropertyByIdWithOwner, updatePropertyById } from '@/lib/api/properties';
 import { toast } from 'react-toastify';
 
 export default function MyProperties() {
@@ -13,9 +13,21 @@ export default function MyProperties() {
     const [loading, setLoading] = useState(false);
     const [deleteLoadingId, setDeleteLoadingId] = useState(null);
 
+    // Feedback Modal States
     const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
     const [selectedFeedback, setSelectedFeedback] = useState('');
     const [selectedPropertyTitle, setSelectedPropertyTitle] = useState('');
+
+    // Edit Modal States
+    const [editModalOpen, setEditModalOpen] = useState(false);
+    const [editLoading, setEditLoading] = useState(false);
+    const [editingProperty, setEditingProperty] = useState(null);
+    const [formData, setFormData] = useState({
+        propertyTitle: '',
+        propertyType: '',
+        rent: '',
+        rentType: ''
+    });
 
     const { data: session, isPending: isSessionLoading } = authClient.useSession();
     const user = session?.user;
@@ -42,10 +54,6 @@ export default function MyProperties() {
         fetchProperties();
     }, [userEmail, isSessionLoading]);
 
-    /**
-     * Handles property deletion using the updated owner-specific API
-     * @param {string} id - Property MongoDB ObjectId
-     */
     const handleDelete = async (id) => {
         if (!confirm("Are you sure you want to delete this property?")) return;
         
@@ -65,12 +73,53 @@ export default function MyProperties() {
         }
     };
 
-    /**
-     * Redirects owner to the dedicated edit form page
-     * @param {string} id - Property MongoDB ObjectId
-     */
-    const handleEditRedirect = (id) => {
-        router.push(`/dashboard/my-properties/edit/${id}`);
+  
+    const handleEditClick = (property) => {
+        setEditingProperty(property);
+        setFormData({
+            propertyTitle: property.propertyTitle || '',
+            propertyType: property.propertyType || '',
+            rent: property.rent || '',
+            rentType: property.rentType || 'Monthly'
+        });
+        setEditModalOpen(true);
+    };
+
+  
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: name === 'rent' ? Number(value) : value
+        }));
+    };
+
+  
+    const handleEditSubmit = async (e) => {
+        e.preventDefault();
+        const targetId = editingProperty._id || editingProperty.id;
+        
+        try {
+            setEditLoading(true);
+            const response = await updatePropertyById(targetId, formData);
+            
+            if (response.success) {
+               
+                setProperties(prev => prev.map(p => {
+                    if ((p._id || p.id) === targetId) {
+                        return { ...p, ...formData };
+                    }
+                    return p;
+                }));
+                toast.success("Property updated successfully!");
+                setEditModalOpen(false);
+            }
+        } catch (error) {
+            console.error("Update error:", error);
+            toast.error(error.message || "Failed to update property");
+        } finally {
+            setEditLoading(false);
+        }
     };
 
     const handleOpenFeedback = (title, feedback) => {
@@ -143,7 +192,7 @@ export default function MyProperties() {
 
                                     <div className="flex gap-1 items-center min-w-[70px] justify-end">
                                         <button 
-                                            onClick={() => handleEditRedirect(p._id || p.id)}
+                                            onClick={() => handleEditClick(p)}
                                             className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/50 text-blue-500 rounded-lg cursor-pointer transition-colors"
                                         >
                                             <Edit size={18} />
@@ -214,7 +263,7 @@ export default function MyProperties() {
                                             </td>
                                             <td className="p-5 flex justify-center gap-2 items-center min-w-[100px]">
                                                 <button 
-                                                    onClick={() => handleEditRedirect(p._id || p.id)}
+                                                    onClick={() => handleEditClick(p)}
                                                     className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/50 text-blue-500 rounded-lg cursor-pointer transition-colors"
                                                 >
                                                     <Edit size={18} />
@@ -237,6 +286,95 @@ export default function MyProperties() {
                         </div>
                     </div>
                 </>
+            )}
+
+            {/* Dynamic Edit Property Modal */}
+            {editModalOpen && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+                    <div className="bg-white dark:bg-slate-800 rounded-[2rem] p-6 max-w-md w-full border border-slate-200 dark:border-slate-700 shadow-2xl space-y-4 relative">
+                        <button 
+                            onClick={() => setEditModalOpen(false)}
+                            className="absolute right-5 top-5 p-1 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-colors"
+                        >
+                            <X size={20} />
+                        </button>
+                        
+                        <div className="flex items-center gap-2 text-blue-600 font-bold text-lg mb-2">
+                            <Edit size={20} /> Edit Property Details
+                        </div>
+
+                        <form onSubmit={handleEditSubmit} className="space-y-4">
+                            <div>
+                                <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-1">Property Title</label>
+                                <input 
+                                    type="text" 
+                                    name="propertyTitle"
+                                    value={formData.propertyTitle}
+                                    onChange={handleInputChange}
+                                    required
+                                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent dark:text-white focus:outline-none focus:border-blue-500"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-1">Property Type</label>
+                                <input 
+                                    type="text" 
+                                    name="propertyType"
+                                    value={formData.propertyType}
+                                    onChange={handleInputChange}
+                                    required
+                                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent dark:text-white focus:outline-none focus:border-blue-500"
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-1">Rent (৳)</label>
+                                    <input 
+                                        type="number" 
+                                        name="rent"
+                                        value={formData.rent}
+                                        onChange={handleInputChange}
+                                        required
+                                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent dark:text-white focus:outline-none focus:border-blue-500"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-1">Rent Type</label>
+                                    <select 
+                                        name="rentType"
+                                        value={formData.rentType}
+                                        onChange={handleInputChange}
+                                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white focus:outline-none focus:border-blue-500"
+                                    >
+                                        <option value="Monthly">Monthly</option>
+                                        <option value="Yearly">Yearly</option>
+                                        <option value="Daily">Daily</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="flex justify-end gap-2 pt-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setEditModalOpen(false)}
+                                    className="py-2.5 px-5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-xl text-sm font-bold transition-all"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={editLoading}
+                                    className="py-2.5 px-6 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold flex items-center gap-1.5 transition-all shadow-md disabled:opacity-50"
+                                >
+                                    {editLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+                                    Save Changes
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             )}
 
             {/* Rejection Feedback Modal */}
