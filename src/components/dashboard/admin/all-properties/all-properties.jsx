@@ -146,7 +146,7 @@ export default function AllProperties() {
     };
 
     const handleOpenEditModal = (p) => {
-        setEditForm({ id: p._id, title: p.propertyTitle, location: p.location, rent: p.rent });
+        setEditForm({ _id: p._id, title: p.propertyTitle, location: p.location, rent: p.rent });
         setEditModalOpen(true);
     };
 
