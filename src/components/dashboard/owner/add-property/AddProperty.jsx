@@ -1,12 +1,17 @@
 "use client";
 import React, { useState } from 'react';
-import { Upload, PlusCircle, Loader2 } from 'lucide-react';
-import { addProperty } from '@/lib/api/properties'; // 👈 আগের ফাইলের API ফাংশন ইম্পোর্ট করা হলো
+import { Image as ImageIcon, PlusCircle, Loader2 } from 'lucide-react';
+import { addProperty } from '@/lib/api/properties'; 
 import { toast } from 'react-toastify';
 import { authClient } from '@/lib/auth-client';
 
-export default function AddProperty() {
+/**
+ * @file AddProperty.jsx
+ * @description Component for property owners to list new real estate assets on StayNest.
+ * Includes role validation, dynamic image handling, and multi-field data structures.
+ */
 
+export default function AddProperty() {
     const { data: session } = authClient.useSession();
     const user = session?.user;
     const userEmail = user?.email;
@@ -22,17 +27,21 @@ export default function AddProperty() {
         bathrooms: '',
         propertySize: '',
         amenities: '',
+        images: '', 
         extraFeatures: ''
     });
 
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState({ type: '', text: '' });
 
+    /**
+     * Form submission handler to sanitize and dispatch property data.
+     * @param {React.FormEvent<HTMLFormElement>} e - Submission event
+     */
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setMessage({ type: '', text: '' });
-
 
         if (!userEmail) {
             toast.error("Please log in first to add a property.");
@@ -43,6 +52,10 @@ export default function AddProperty() {
         const amenitiesArray = formData.amenities
             ? formData.amenities.split(',').map(item => item.trim())
             : [];
+
+        const imagesArray = formData.images
+            ? formData.images.split(',').map(item => item.trim())
+            : ["https://images.unsplash.com/photo-1505693416388-ac5ce068fe85"]; 
 
         const propertyData = {
             propertyTitle: formData.propertyTitle,
@@ -55,10 +68,7 @@ export default function AddProperty() {
             bathrooms: Number(formData.bathrooms),
             propertySize: `${formData.propertySize} sqft`,
             amenities: amenitiesArray,
-            images: [
-                "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85",
-                "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af"
-            ],
+            images: imagesArray, 
             extraFeatures: formData.extraFeatures,
             status: 'Pending',
             ownerInformation: {
@@ -75,7 +85,6 @@ export default function AddProperty() {
                 toast.success("Added your property successfully");
                 setMessage({ type: 'success', text: 'Property listed successfully!' });
 
-                // ফর্ম স্টেট রিসেট
                 setFormData({
                     propertyTitle: '',
                     description: '',
@@ -87,6 +96,7 @@ export default function AddProperty() {
                     bathrooms: '',
                     propertySize: '',
                     amenities: '',
+                    images: '', 
                     extraFeatures: ''
                 });
 
@@ -252,7 +262,6 @@ export default function AddProperty() {
                         </div>
                     </div>
 
-                    {/* 👤 ওনার ইনফরমেশন সেকশন */}
                     <div className="p-4 bg-slate-100 dark:bg-slate-900/60 rounded-2xl border border-slate-200/50 dark:border-slate-700/50 space-y-2">
                         <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300">Owner Profile Information</h4>
                         {userEmail ? (
@@ -267,11 +276,21 @@ export default function AddProperty() {
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-sm font-semibold ml-1">Upload Images</label>
-                        <div className="h-40 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-3xl flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900/50 cursor-pointer hover:border-blue-500 transition-all">
-                            <Upload className="text-slate-400 mb-2" />
-                            <span className="text-slate-500 text-sm">Click to upload images</span>
+                        <label className="text-sm font-semibold ml-1">Property Image URLs</label>
+                        <div className="relative flex items-center">
+                            <div className="absolute left-4 text-slate-400">
+                                <ImageIcon size={20} />
+                            </div>
+                            <input
+                                type="text"
+                                value={formData.images}
+                                onChange={(e) => setFormData({ ...formData, images: e.target.value })}
+                                className="w-full pl-12 pr-4 py-4 rounded-2xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 outline-none text-slate-900 dark:text-white focus:ring-2 ring-blue-500 transition-all text-sm"
+                                placeholder="https://link1.com, https://link2.com (Separate multiple links with commas)"
+                                required
+                            />
                         </div>
+                        <p className="text-[11px] text-slate-400 dark:text-slate-500 ml-1">You can use direct image links from ImgBB, Unsplash, etc.</p>
                     </div>
 
                     <button
@@ -293,4 +312,5 @@ export default function AddProperty() {
             </div>
         </div>
     );
-}
+            }
+                            
