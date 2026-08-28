@@ -110,3 +110,7 @@ Open http://localhost:3000 in your web browser to explore the platform.
  * **Formatted Outputs:** Financial sums and large data populations are cleanly evaluated using JavaScript toLocaleString() for professional output displays.
 ## 📝 License
 This project is submitted as an assignment for evaluation. All rights reserved to the developer.
+
+## importent code
+import dns from "node:dns";
+dns.setServers(["1.1.1.1", "1.0.0.1"]);
